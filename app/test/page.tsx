@@ -265,7 +265,7 @@ function TestView() {
           payload.sessionId = resumeSession;
         }
 
-        const res = await fetch("/api/generate-questions", {
+        const res = await fetch("/winnieloveuu/api/generate-questions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),

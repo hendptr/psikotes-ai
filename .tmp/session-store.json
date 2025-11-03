@@ -6846,5 +6846,1340 @@
     },
     "startedAt": 1762192095810,
     "updatedAt": 1762192095810
+  },
+  {
+    "sessionId": "9a819bf1-819f-416c-8264-d2626036b80b",
+    "questions": [
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Tentukan angka selanjutnya dari deret berikut: 4, 5, 9, 18, 34, ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "59"
+          },
+          {
+            "label": "B",
+            "text": "55"
+          },
+          {
+            "label": "C",
+            "text": "62"
+          },
+          {
+            "label": "D",
+            "text": "50"
+          },
+          {
+            "label": "E",
+            "text": "68"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Pola deret ini adalah penjumlahan dengan bilangan kuadrat berurutan. Selisih antar suku adalah: 5-4=1 (1^2), 9-5=4 (2^2), 18-9=9 (3^2), 34-18=16 (4^2). Maka, selisih selanjutnya adalah 5^2 = 25. Angka berikutnya adalah 34 + 25 = 59."
+      },
+      {
+        "category": "padanan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "KONSTITUSI : PREAMBUL :: ... : ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "BUKU : KATA PENGANTAR"
+          },
+          {
+            "label": "B",
+            "text": "DRAMA : EPILOG"
+          },
+          {
+            "label": "C",
+            "text": "LEGISLATIF : YUDIKATIF"
+          },
+          {
+            "label": "D",
+            "text": "OPERA : INTERMEZZO"
+          },
+          {
+            "label": "E",
+            "text": "RUMAH : FONDASI"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Hubungan analoginya adalah 'keseluruhan : bagian pembuka'. Konstitusi adalah keseluruhan dokumen hukum dasar, dan Preambul (pembukaan) adalah bagian pembukanya. Hubungan yang paling setara adalah BUKU (keseluruhan) yang memiliki KATA PENGANTAR sebagai bagian pembukanya. Epilog adalah penutup, Fondasi adalah dasar (bukan pembuka), Intermezzo adalah selingan, dan Legislatif-Yudikatif adalah hubungan antar lembaga."
+      },
+      {
+        "category": "sinonim_antonim",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Tentukan ANTONIM dari kata 'EFEMERAL'.",
+        "options": [
+          {
+            "label": "A",
+            "text": "KEKAL"
+          },
+          {
+            "label": "B",
+            "text": "FANA"
+          },
+          {
+            "label": "C",
+            "text": "SEMENTARA"
+          },
+          {
+            "label": "D",
+            "text": "RAPUH"
+          },
+          {
+            "label": "E",
+            "text": "VIRTUAL"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Efemeral memiliki arti 'bersifat sementara; tidak kekal; hanya sesaat'. Oleh karena itu, antonim (lawan kata) yang paling tepat adalah KEKAL, yang berarti abadi atau langgeng. Fana dan Sementara adalah sinonim dari efemeral, sedangkan Rapuh dan Virtual memiliki makna yang berbeda."
+      },
+      {
+        "category": "hafalan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Makna dari istilah 'ADAGIUM' adalah...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Peribahasa atau pepatah"
+          },
+          {
+            "label": "B",
+            "text": "Penambahan pada akhir kata"
+          },
+          {
+            "label": "C",
+            "text": "Argumentasi yang keliru"
+          },
+          {
+            "label": "D",
+            "text": "Karya sastra yang agung"
+          },
+          {
+            "label": "E",
+            "text": "Sidang dewan gereja"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Adagium adalah sebuah peribahasa, pepatah, atau ungkapan ringkas yang berisi kearifan atau kebenaran umum. Contoh adagium terkenal adalah 'cogito, ergo sum' (aku berpikir, maka aku ada)."
+      },
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Lanjutkan deret berikut: 100, 99, 97, 94, 90, 85, ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "78"
+          },
+          {
+            "label": "B",
+            "text": "79"
+          },
+          {
+            "label": "C",
+            "text": "80"
+          },
+          {
+            "label": "D",
+            "text": "81"
+          },
+          {
+            "label": "E",
+            "text": "77"
+          }
+        ],
+        "correctOptionLabel": "B",
+        "explanation": "Pola deret ini adalah pengurangan dengan bilangan asli berurutan. 100 (-1) = 99; 99 (-2) = 97; 97 (-3) = 94; 94 (-4) = 90; 90 (-5) = 85. Maka, langkah selanjutnya adalah 85 (-6) = 79."
+      },
+      {
+        "category": "sinonim_antonim",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Pilihlah SINONIM yang paling tepat untuk kata 'VERITATIF'.",
+        "options": [
+          {
+            "label": "A",
+            "text": "Dapat dibuktikan kebenarannya"
+          },
+          {
+            "label": "B",
+            "text": "Bersifat menekan"
+          },
+          {
+            "label": "C",
+            "text": "Memiliki banyak variasi"
+          },
+          {
+            "label": "D",
+            "text": "Dapat berubah-ubah"
+          },
+          {
+            "label": "E",
+            "text": "Sangat kuno"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Veritatif berasal dari kata 'veritas' (Latin) yang berarti kebenaran. Jadi, veritatif adalah sesuatu yang bersifat nyata atau dapat dibuktikan kebenarannya. Istilah ini sering digunakan dalam konteks logika dan filsafat."
+      },
+      {
+        "category": "padanan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "FILANTROPIS : DERMA :: ... : ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "PESIMIS : HARAPAN"
+          },
+          {
+            "label": "B",
+            "text": "HEDONIS : KESENANGAN"
+          },
+          {
+            "label": "C",
+            "text": "OPTIMIS : KEGAGALAN"
+          },
+          {
+            "label": "D",
+            "text": "VEGETARIAN : DAGING"
+          },
+          {
+            "label": "E",
+            "text": "KOMUNIS : MODAL"
+          }
+        ],
+        "correctOptionLabel": "B",
+        "explanation": "Hubungan analoginya adalah 'sifat/paham seseorang : hal yang dikejar/dilakukan'. Seorang Filantropis adalah orang yang suka ber-Derma (memberi). Hubungan yang setara adalah seorang Hedonis, yaitu orang yang mengejar Kesenangan sebagai tujuan utama hidup. Pilihan lain menunjukkan pertentangan atau penolakan (Pesimis-Harapan, Vegetarian-Daging)."
+      },
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Isilah angka yang hilang pada deret: 3, 4, 7, 11, 18, 29, ..., 76",
+        "options": [
+          {
+            "label": "A",
+            "text": "45"
+          },
+          {
+            "label": "B",
+            "text": "46"
+          },
+          {
+            "label": "C",
+            "text": "47"
+          },
+          {
+            "label": "D",
+            "text": "48"
+          },
+          {
+            "label": "E",
+            "text": "49"
+          }
+        ],
+        "correctOptionLabel": "C",
+        "explanation": "Deret ini adalah deret Fibonacci, di mana setiap suku adalah hasil penjumlahan dari dua suku sebelumnya. 3+4=7; 4+7=11; 7+11=18; 11+18=29. Maka, suku berikutnya adalah 18+29 = 47. Untuk memeriksa, suku setelahnya adalah 29+47 = 76, yang sesuai dengan deret."
+      },
+      {
+        "category": "hafalan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Istilah 'PROKRAS' dalam konteks perilaku merujuk pada...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Kebiasaan menunda-nunda pekerjaan"
+          },
+          {
+            "label": "B",
+            "text": "Kemampuan berpikir kritis"
+          },
+          {
+            "label": "C",
+            "text": "Sikap yang terlalu optimis"
+          },
+          {
+            "label": "D",
+            "text": "Tindakan yang terburu-buru"
+          },
+          {
+            "label": "E",
+            "text": "Perilaku yang dibuat-buat"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Prokras, atau lebih umum dikenal sebagai prokrastinasi, adalah kecenderungan atau kebiasaan untuk menunda-nunda penyelesaian tugas atau pekerjaan penting hingga saat-saat terakhir, yang seringkali menimbulkan kecemasan dan penurunan kualitas hasil."
+      },
+      {
+        "category": "padanan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "METAFORA : KIASAN :: ... : ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "ANALOGI : PERSAMAAN"
+          },
+          {
+            "label": "B",
+            "text": "SINONIM : LAWAN KATA"
+          },
+          {
+            "label": "C",
+            "text": "TESIS : ANTITESIS"
+          },
+          {
+            "label": "D",
+            "text": "BUJUR : LINTANG"
+          },
+          {
+            "label": "E",
+            "text": "FAKTA : OPINI"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Hubungan kata pada soal adalah 'istilah spesifik : kategori umum/definisi'. Metafora adalah salah satu jenis dari Kiasan. Hubungan yang paling setara adalah Analogi yang merupakan salah satu bentuk dari Persamaan (perbandingan dua hal yang memiliki kesamaan). Pilihan lainnya menunjukkan hubungan pertentangan atau perbedaan."
+      },
+      {
+        "category": "sinonim_antonim",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Tentukan ANTONIM dari kata 'MANDATORI'.",
+        "options": [
+          {
+            "label": "A",
+            "text": "OTORITER"
+          },
+          {
+            "label": "B",
+            "text": "WAJIB"
+          },
+          {
+            "label": "C",
+            "text": "SUKARELA"
+          },
+          {
+            "label": "D",
+            "text": "BIROKRATIS"
+          },
+          {
+            "label": "E",
+            "text": "OPSIONAL"
+          }
+        ],
+        "correctOptionLabel": "C",
+        "explanation": "Mandatori berarti bersifat wajib atau keharusan. Antonim yang paling tepat adalah Sukarela, yang berarti dilakukan atas kemauan sendiri tanpa paksaan. Opsional juga bisa menjadi lawan kata, namun Sukarela lebih menekankan pada aspek kemauan dari dalam diri, yang merupakan lawan paling kuat dari 'paksaan/keharusan'."
+      },
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Lanjutkan deret berikut: 2, 3, 6, 11, 20, 37, ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "68"
+          },
+          {
+            "label": "B",
+            "text": "65"
+          },
+          {
+            "label": "C",
+            "text": "70"
+          },
+          {
+            "label": "D",
+            "text": "74"
+          },
+          {
+            "label": "E",
+            "text": "57"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Pola deret ini adalah penjumlahan tiga suku sebelumnya. Dimulai dari suku keempat: 11 = 2+3+6; 20 = 3+6+11; 37 = 6+11+20. Maka, suku berikutnya adalah 11+20+37 = 68."
+      },
+      {
+        "category": "hafalan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Kata 'EVOKASI' memiliki arti...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Proses penguapan zat cair"
+          },
+          {
+            "label": "B",
+            "text": "Daya untuk menggugah rasa atau ingatan"
+          },
+          {
+            "label": "C",
+            "text": "Perubahan bentuk secara bertahap"
+          },
+          {
+            "label": "D",
+            "text": "Penghindaran tanggung jawab"
+          },
+          {
+            "label": "E",
+            "text": "Pernyataan pembelaan diri"
+          }
+        ],
+        "correctOptionLabel": "B",
+        "explanation": "Evokasi adalah daya atau kemampuan untuk menggugah (membangkitkan) perasaan, emosi, atau kenangan masa lalu. Misalnya, aroma tertentu dapat menjadi evokasi kenangan masa kecil."
+      },
+      {
+        "category": "padanan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "MIKROSKOP : MIKROBA :: ... : ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "TELESKOP : BINTANG"
+          },
+          {
+            "label": "B",
+            "text": "PALUNG : KAPAL SELAM"
+          },
+          {
+            "label": "C",
+            "text": "PENA : TINTA"
+          },
+          {
+            "label": "D",
+            "text": "STETOSKOP : DIAGNOSA"
+          },
+          {
+            "label": "E",
+            "text": "JARUM : JAM"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Hubungan analoginya adalah 'alat : objek yang diamati'. Mikroskop digunakan untuk mengamati Mikroba (objek yang sangat kecil). Hubungan yang setara adalah Teleskop yang digunakan untuk mengamati Bintang (objek yang sangat jauh). Pilihan lain memiliki hubungan yang berbeda: B (tempat:alat), C (alat:bahan), D (alat:tujuan), E (bagian:keseluruhan)."
+      },
+      {
+        "category": "sinonim_antonim",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Pilihlah SINONIM yang paling tepat untuk kata 'JENGGALA'.",
+        "options": [
+          {
+            "label": "A",
+            "text": "Gurun"
+          },
+          {
+            "label": "B",
+            "text": "Rawa"
+          },
+          {
+            "label": "C",
+            "text": "Lembah"
+          },
+          {
+            "label": "D",
+            "text": "Hutan"
+          },
+          {
+            "label": "E",
+            "text": "Bukit"
+          }
+        ],
+        "correctOptionLabel": "D",
+        "explanation": "Jenggala adalah kata arkais atau klasik dalam bahasa Indonesia yang memiliki arti hutan atau rimba. Kata ini sering ditemukan dalam karya sastra lama."
+      },
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Tentukan angka selanjutnya dari deret berikut: 1, 8, 27, 64, 125, ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "196"
+          },
+          {
+            "label": "B",
+            "text": "216"
+          },
+          {
+            "label": "C",
+            "text": "243"
+          },
+          {
+            "label": "D",
+            "text": "256"
+          },
+          {
+            "label": "E",
+            "text": "343"
+          }
+        ],
+        "correctOptionLabel": "B",
+        "explanation": "Deret ini adalah deret bilangan kubik (pangkat tiga) berurutan. 1^3 = 1; 2^3 = 8; 3^3 = 27; 4^3 = 64; 5^3 = 125. Maka, suku selanjutnya adalah 6^3 = 216."
+      },
+      {
+        "category": "hafalan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Istilah 'YURISPRUDENSI' dalam ilmu hukum mengacu pada...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Wilayah kekuasaan pengadilan"
+          },
+          {
+            "label": "B",
+            "text": "Ilmu tentang segala sesuatu yang berhubungan dengan hukum"
+          },
+          {
+            "label": "C",
+            "text": "Keputusan hakim terdahulu yang menjadi dasar keputusan hakim lain"
+          },
+          {
+            "label": "D",
+            "text": "Gugatan perdata yang diajukan ke pengadilan"
+          },
+          {
+            "label": "E",
+            "text": "Proses perancangan undang-undang oleh legislatif"
+          }
+        ],
+        "correctOptionLabel": "C",
+        "explanation": "Yurisprudensi adalah ajaran hukum yang terbentuk dari putusan-putusan pengadilan. Secara spesifik, ini adalah kumpulan keputusan hakim terdahulu mengenai suatu perkara yang sama, yang kemudian diikuti dan dijadikan dasar atau rujukan oleh hakim-hakim berikutnya dalam memutus perkara serupa."
+      },
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Lanjutkan deret berikut: 5, 7, 12, 19, 31, 50, ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "69"
+          },
+          {
+            "label": "B",
+            "text": "71"
+          },
+          {
+            "label": "C",
+            "text": "79"
+          },
+          {
+            "label": "D",
+            "text": "81"
+          },
+          {
+            "label": "E",
+            "text": "90"
+          }
+        ],
+        "correctOptionLabel": "D",
+        "explanation": "Ini adalah deret Fibonacci yang dimodifikasi. Setiap suku adalah hasil penjumlahan dari dua suku sebelumnya. 5+7=12; 7+12=19; 12+19=31; 19+31=50. Maka, suku berikutnya adalah 31+50 = 81."
+      },
+      {
+        "category": "sinonim_antonim",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Tentukan ANTONIM dari kata 'KLERIKAL'.",
+        "options": [
+          {
+            "label": "A",
+            "text": "SEKULER"
+          },
+          {
+            "label": "B",
+            "text": "SAKRAL"
+          },
+          {
+            "label": "C",
+            "text": "ADMINISTRATIF"
+          },
+          {
+            "label": "D",
+            "text": "SPIRITUAL"
+          },
+          {
+            "label": "E",
+            "text": "BIROKRATIS"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Klerikal adalah segala sesuatu yang berhubungan dengan rohaniwan, keagamaan, atau gereja. Antonimnya adalah Sekuler, yang berarti bersifat duniawi, kebendaan, atau tidak berhubungan dengan keagamaan."
+      },
+      {
+        "category": "padanan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "PADI : WERENG :: ... : ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "KAYU : RAYAP"
+          },
+          {
+            "label": "B",
+            "text": "MANUSIA : PENYAKIT"
+          },
+          {
+            "label": "C",
+            "text": "IKAN : JARING"
+          },
+          {
+            "label": "D",
+            "text": "BAJU : KOTOR"
+          },
+          {
+            "label": "E",
+            "text": "SAPI : RUMPUT"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Hubungan analoginya adalah 'objek : hama perusak'. Padi dirusak oleh Wereng. Hubungan yang paling setara adalah Kayu yang dirusak oleh Rayap. Penyakit bukan hama spesifik, jaring adalah alat penangkap, kotor adalah kondisi, dan rumput adalah makanan."
+      }
+    ],
+    "answers": {},
+    "currentIndex": 0,
+    "completed": false,
+    "config": {
+      "category": "mixed",
+      "difficulty": "sulit",
+      "userType": "serius",
+      "count": 20
+    },
+    "startedAt": 1762193592206,
+    "updatedAt": 1762193592206
+  },
+  {
+    "sessionId": "791e1314-9a8e-4a6f-a944-db84c6203766",
+    "questions": [
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Tentukan angka selanjutnya dari deret berikut: 5, 8, 16, 19, 38, 41, ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "44"
+          },
+          {
+            "label": "B",
+            "text": "82"
+          },
+          {
+            "label": "C",
+            "text": "51"
+          },
+          {
+            "label": "D",
+            "text": "76"
+          },
+          {
+            "label": "E",
+            "text": "63"
+          }
+        ],
+        "correctOptionLabel": "B",
+        "explanation": "Pola deret ini adalah selang-seling antara penambahan 3 dan perkalian 2. Polanya adalah +3, x2, +3, x2, dst. \n5 + 3 = 8\n8 x 2 = 16\n16 + 3 = 19\n19 x 2 = 38\n38 + 3 = 41\nLangkah selanjutnya adalah mengalikan dengan 2: 41 x 2 = 82."
+      },
+      {
+        "category": "sinonim_antonim",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Manakah kata yang merupakan SINONIM dari kata 'PROSAIK'?",
+        "options": [
+          {
+            "label": "A",
+            "text": "Puitis"
+          },
+          {
+            "label": "B",
+            "text": "Imajinatif"
+          },
+          {
+            "label": "C",
+            "text": "Membosankan"
+          },
+          {
+            "label": "D",
+            "text": "Dramatis"
+          },
+          {
+            "label": "E",
+            "text": "Romantis"
+          }
+        ],
+        "correctOptionLabel": "C",
+        "explanation": "Kata 'prosaik' berarti biasa saja, tidak istimewa, atau bersifat seperti prosa. Dalam konteks ini, sinonim yang paling mendekati adalah 'membosankan' karena menggambarkan sesuatu yang datar dan kurang menarik. 'Puitis' adalah antonimnya. 'Imajinatif', 'Dramatis', dan 'Romantis' adalah kata-kata yang berlawanan dengan sifat biasa dan tidak istimewa."
+      },
+      {
+        "category": "padanan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "MIKROSKOP : MIKROBA = ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Teleskop : Astronom"
+          },
+          {
+            "label": "B",
+            "text": "Stetoskop : Diagnosis"
+          },
+          {
+            "label": "C",
+            "text": "Pena : Penulis"
+          },
+          {
+            "label": "D",
+            "text": "Radar : Pesawat"
+          },
+          {
+            "label": "E",
+            "text": "Palu : Paku"
+          }
+        ],
+        "correctOptionLabel": "D",
+        "explanation": "Hubungan kata adalah 'alat untuk mendeteksi/melihat : objek yang dideteksi/dilihat'. Mikroskop digunakan untuk melihat mikroba. Radar digunakan untuk mendeteksi pesawat. Pilihan A salah karena astronom adalah pengguna, bukan objek yang dilihat. Pilihan B salah karena diagnosis adalah hasil, bukan objek. Pilihan C salah karena penulis adalah pengguna. Pilihan E salah karena paku adalah objek yang dikerjakan, bukan dideteksi."
+      },
+      {
+        "category": "hafalan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Kata 'IMPLISIT' memiliki arti...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Terbuka dan Jelas"
+          },
+          {
+            "label": "B",
+            "text": "Kompleks dan Rumit"
+          },
+          {
+            "label": "C",
+            "text": "Tersirat atau Terkandung di dalamnya"
+          },
+          {
+            "label": "D",
+            "text": "Mutlak dan Tidak dapat diganggu gugat"
+          },
+          {
+            "label": "E",
+            "text": "Sengaja disembunyikan"
+          }
+        ],
+        "correctOptionLabel": "C",
+        "explanation": "Implisit berarti sesuatu yang tidak dinyatakan secara langsung, tetapi terkandung atau tersirat di dalamnya. Lawan katanya adalah 'eksplisit', yang berarti dinyatakan secara jelas dan gamblang. Pilihan C adalah definisi yang paling tepat."
+      },
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Lanjutkan deret angka berikut: 4, 5, 9, 14, 23, 37, ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "51"
+          },
+          {
+            "label": "B",
+            "text": "60"
+          },
+          {
+            "label": "C",
+            "text": "49"
+          },
+          {
+            "label": "D",
+            "text": "64"
+          },
+          {
+            "label": "E",
+            "text": "71"
+          }
+        ],
+        "correctOptionLabel": "B",
+        "explanation": "Deret ini mengikuti aturan deret Fibonacci, di mana setiap angka adalah hasil penjumlahan dua angka sebelumnya.\n4 + 5 = 9\n5 + 9 = 14\n9 + 14 = 23\n14 + 23 = 37\nAngka berikutnya adalah 23 + 37 = 60."
+      },
+      {
+        "category": "sinonim_antonim",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Pilihlah kata yang merupakan ANTONIM dari 'DEKADENSI'.",
+        "options": [
+          {
+            "label": "A",
+            "text": "Kemunduran"
+          },
+          {
+            "label": "B",
+            "text": "Amoralitas"
+          },
+          {
+            "label": "C",
+            "text": "Stagnasi"
+          },
+          {
+            "label": "D",
+            "text": "Kemajuan"
+          },
+          {
+            "label": "E",
+            "text": "Korupsi"
+          }
+        ],
+        "correctOptionLabel": "D",
+        "explanation": "Dekadensi berarti kemerosotan atau kemunduran (terutama dalam hal moral dan budaya). Oleh karena itu, antonim atau lawan katanya adalah 'Kemajuan'. 'Kemunduran', 'Amoralitas', dan 'Korupsi' adalah sinonim atau kata yang berhubungan erat, sedangkan 'Stagnasi' berarti keadaan berhenti atau tidak ada perkembangan."
+      },
+      {
+        "category": "padanan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "SUARA : GEMA = ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "SINAR : BIAS"
+          },
+          {
+            "label": "B",
+            "text": "API : BARA"
+          },
+          {
+            "label": "C",
+            "text": "AKSI : REAKSI"
+          },
+          {
+            "label": "D",
+            "text": "KATA : MAKNA"
+          },
+          {
+            "label": "E",
+            "text": "AWAN : HUJAN"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Hubungan kata adalah 'gelombang : fenomena yang dialami gelombang tersebut'. Suara (gelombang bunyi) mengalami pemantulan yang menghasilkan gema. Sinar (gelombang cahaya) mengalami pembelokan atau pembiasan (bias). Pilihan C terlalu umum. Pilihan B, D, dan E tidak menunjukkan hubungan fenomena gelombang yang sepadan."
+      },
+      {
+        "category": "hafalan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Apakah arti dari kata 'ADAGIUM'?",
+        "options": [
+          {
+            "label": "A",
+            "text": "Bab dalam sebuah buku"
+          },
+          {
+            "label": "B",
+            "text": "Istilah dalam bidang hukum"
+          },
+          {
+            "label": "C",
+            "text": "Paragraf pembuka pidato"
+          },
+          {
+            "label": "D",
+            "text": "Sajak pendek"
+          },
+          {
+            "label": "E",
+            "text": "Pepatah atau peribahasa"
+          }
+        ],
+        "correctOptionLabel": "E",
+        "explanation": "Adagium adalah sebuah peribahasa, pepatah, atau ungkapan ringkas yang mengandung kebenaran umum atau nasihat. Oleh karena itu, 'Pepatah atau peribahasa' adalah jawaban yang paling tepat."
+      },
+      {
+        "category": "sinonim_antonim",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Manakah kata yang paling mendekati makna 'INSINUASI'?",
+        "options": [
+          {
+            "label": "A",
+            "text": "Klarifikasi"
+          },
+          {
+            "label": "B",
+            "text": "Pujian tulus"
+          },
+          {
+            "label": "C",
+            "text": "Perintah tegas"
+          },
+          {
+            "label": "D",
+            "text": "Tuduhan langsung"
+          },
+          {
+            "label": "E",
+            "text": "Sindiran tersembunyi"
+          }
+        ],
+        "correctOptionLabel": "E",
+        "explanation": "Insinuasi adalah tuduhan atau sindiran yang tidak disampaikan secara langsung, melainkan secara terselubung atau tersembunyi. Pilihan E, 'Sindiran tersembunyi', adalah sinonim yang paling akurat. 'Tuduhan langsung' adalah kebalikannya."
+      },
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Tentukan angka yang hilang dari deret berikut: 1, 8, 9, 64, 25, 216, ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "49"
+          },
+          {
+            "label": "B",
+            "text": "36"
+          },
+          {
+            "label": "C",
+            "text": "64"
+          },
+          {
+            "label": "D",
+            "text": "343"
+          },
+          {
+            "label": "E",
+            "text": "512"
+          }
+        ],
+        "correctOptionLabel": "A",
+        "explanation": "Deret ini terdiri dari dua pola yang berselang-seling. Pola pertama adalah bilangan kuadrat (n^2), dan pola kedua adalah bilangan kubik (n^3).\n1 = 1^2\n8 = 2^3\n9 = 3^2\n64 = 4^3\n25 = 5^2\n216 = 6^3\nAngka selanjutnya mengikuti pola pertama, yaitu 7^2 = 49."
+      },
+      {
+        "category": "padanan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "BENANG : TENUN = ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Emas : Tambang"
+          },
+          {
+            "label": "B",
+            "text": "Kayu : Ukir"
+          },
+          {
+            "label": "C",
+            "text": "Air : Beku"
+          },
+          {
+            "label": "D",
+            "text": "Tepung : Ragi"
+          },
+          {
+            "label": "E",
+            "text": "Kertas : Tulis"
+          }
+        ],
+        "correctOptionLabel": "B",
+        "explanation": "Hubungannya adalah 'bahan mentah : proses untuk mengubahnya menjadi produk jadi'. Benang (bahan) di-tenun (proses) menjadi kain. Kayu (bahan) di-ukir (proses) menjadi sebuah ukiran/patung. Pilihan A salah karena tambang adalah tempat, bukan proses. Pilihan C salah karena beku adalah perubahan wujud, bukan proses kerajinan. Pilihan D salah karena ragi adalah bahan tambahan, bukan proses. Pilihan E salah karena tulis adalah aktivitas menggunakan kertas, bukan mengubahnya."
+      },
+      {
+        "category": "sinonim_antonim",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Manakah yang merupakan ANTONIM dari kata 'SPORADIS'?",
+        "options": [
+          {
+            "label": "A",
+            "text": "Langka"
+          },
+          {
+            "label": "B",
+            "text": "Rutin"
+          },
+          {
+            "label": "C",
+            "text": "Intensif"
+          },
+          {
+            "label": "D",
+            "text": "Jarang"
+          },
+          {
+            "label": "E",
+            "text": "Temporer"
+          }
+        ],
+        "correctOptionLabel": "B",
+        "explanation": "Sporadis berarti 'kadang-kadang', 'tidak menentu', atau 'tidak teratur'. Lawan kata (antonim) yang paling tepat adalah 'Rutin', yang berarti 'teratur' dan 'berkala'. Kata 'Langka' dan 'Jarang' memiliki makna yang mirip dengan sporadis. 'Intensif' berarti sungguh-sungguh, dan 'Temporer' berarti sementara."
+      },
+      {
+        "category": "hafalan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Istilah 'YURISDIKSI' paling tepat diartikan sebagai...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Lembaga peradilan tertinggi"
+          },
+          {
+            "label": "B",
+            "text": "Kumpulan peraturan perundangan"
+          },
+          {
+            "label": "C",
+            "text": "Proses banding dalam pengadilan"
+          },
+          {
+            "label": "D",
+            "text": "Kekuasaan atau kewenangan berdasarkan hukum"
+          },
+          {
+            "label": "E",
+            "text": "Keputusan hakim yang final"
+          }
+        ],
+        "correctOptionLabel": "D",
+        "explanation": "Yurisdiksi secara harfiah berarti kekuasaan, wewenang, atau kompetensi hukum. Ini mencakup hak untuk mengadili, menerapkan, dan menafsirkan hukum dalam suatu wilayah atau perkara tertentu. Pilihan D adalah definisi yang paling komprehensif dan akurat."
+      },
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Lanjutkan deret berikut: 2, 3, 7, 16, 32, 57, ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "82"
+          },
+          {
+            "label": "B",
+            "text": "73"
+          },
+          {
+            "label": "C",
+            "text": "93"
+          },
+          {
+            "label": "D",
+            "text": "99"
+          },
+          {
+            "label": "E",
+            "text": "101"
+          }
+        ],
+        "correctOptionLabel": "C",
+        "explanation": "Pola deret ini terletak pada selisih antar angkanya, yang merupakan bilangan kuadrat berurutan.\n3 - 2 = 1 (1^2)\n7 - 3 = 4 (2^2)\n16 - 7 = 9 (3^2)\n32 - 16 = 16 (4^2)\n57 - 32 = 25 (5^2)\nSelisih berikutnya adalah 6^2 = 36. Maka, angka selanjutnya adalah 57 + 36 = 93."
+      },
+      {
+        "category": "sinonim_antonim",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Pilihlah kata yang memiliki makna paling dekat dengan 'EVOKASI'.",
+        "options": [
+          {
+            "label": "A",
+            "text": "Penilaian"
+          },
+          {
+            "label": "B",
+            "text": "Pengungsian"
+          },
+          {
+            "label": "C",
+            "text": "Perubahan"
+          },
+          {
+            "label": "D",
+            "text": "Penggugah rasa atau kenangan"
+          },
+          {
+            "label": "E",
+            "text": "Pencegahan"
+          }
+        ],
+        "correctOptionLabel": "D",
+        "explanation": "Evokasi adalah daya atau tindakan untuk membangkitkan atau menggugah (perasaan, ingatan, roh, dsb.). Oleh karena itu, 'Penggugah rasa atau kenangan' adalah sinonim yang paling tepat. Kata ini sering digunakan dalam konteks seni atau sastra."
+      },
+      {
+        "category": "padanan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "BAIT : PUISI = ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Loteng : Bangunan"
+          },
+          {
+            "label": "B",
+            "text": "Jari : Tangan"
+          },
+          {
+            "label": "C",
+            "text": "Bab : Novel"
+          },
+          {
+            "label": "D",
+            "text": "Atap : Rumah"
+          },
+          {
+            "label": "E",
+            "text": "Kata : Huruf"
+          }
+        ],
+        "correctOptionLabel": "C",
+        "explanation": "Hubungannya adalah 'bagian struktural dan tematis : keseluruhan karya sastra'. Bait adalah satu kesatuan dalam sebuah puisi. Bab adalah satu kesatuan naratif dan struktural dalam sebuah novel. Pilihan A dan D adalah bagian fisik dari sebuah bangunan, tetapi tidak memiliki kesatuan tematis yang sepadan. Pilihan B dan E adalah hubungan bagian-keseluruhan yang lebih mendasar, bukan divisi struktural."
+      },
+      {
+        "category": "hafalan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Kata 'REKOGNISI' memiliki arti...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Penolakan"
+          },
+          {
+            "label": "B",
+            "text": "Pengabaian"
+          },
+          {
+            "label": "C",
+            "text": "Pengakuan"
+          },
+          {
+            "label": "D",
+            "text": "Pertimbangan"
+          },
+          {
+            "label": "E",
+            "text": "Penyesuaian"
+          }
+        ],
+        "correctOptionLabel": "C",
+        "explanation": "Rekognisi berasal dari bahasa Inggris 'recognition', yang berarti pengakuan atau penghargaan atas keberadaan, keabsahan, atau pencapaian sesuatu. Dalam berbagai konteks (hukum, diplomasi, bisnis), artinya tetap berpusat pada 'pengakuan'. 'Penolakan' dan 'pengabaian' adalah antonimnya."
+      },
+      {
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Tentukan angka selanjutnya dari deret berikut: 3, 4, 7, 11, 18, 29, 47, ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "65"
+          },
+          {
+            "label": "B",
+            "text": "76"
+          },
+          {
+            "label": "C",
+            "text": "74"
+          },
+          {
+            "label": "D",
+            "text": "81"
+          },
+          {
+            "label": "E",
+            "text": "92"
+          }
+        ],
+        "correctOptionLabel": "B",
+        "explanation": "Deret ini adalah variasi dari deret Fibonacci (dikenal juga sebagai deret Lucas), di mana setiap angka adalah hasil penjumlahan dari dua angka sebelumnya.\n3 + 4 = 7\n4 + 7 = 11\n7 + 11 = 18\n11 + 18 = 29\n18 + 29 = 47\nLangkah berikutnya adalah 29 + 47 = 76."
+      },
+      {
+        "category": "hafalan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "Apakah makna yang paling tepat untuk kata 'PRETENSI'?",
+        "options": [
+          {
+            "label": "A",
+            "text": "Tujuan yang jelas"
+          },
+          {
+            "label": "B",
+            "text": "Harapan yang tinggi"
+          },
+          {
+            "label": "C",
+            "text": "Perilaku yang dibuat-buat atau tidak wajar"
+          },
+          {
+            "label": "D",
+            "text": "Tuntutan resmi"
+          },
+          {
+            "label": "E",
+            "text": "Kenyataan yang pahit"
+          }
+        ],
+        "correctOptionLabel": "C",
+        "explanation": "Pretensi berarti tindakan atau perilaku yang tidak sesuai dengan keadaan sebenarnya; berpura-pura, atau berlagak. Ini mengacu pada perilaku yang dibuat-buat untuk memberikan kesan tertentu. Pilihan C adalah definisi yang paling akurat."
+      },
+      {
+        "category": "padanan_kata",
+        "difficulty": "sulit",
+        "questionType": "multiple_choice",
+        "questionText": "KOMPONIS : SIMFONI = ...",
+        "options": [
+          {
+            "label": "A",
+            "text": "Aktor : Panggung"
+          },
+          {
+            "label": "B",
+            "text": "Penyanyi : Lagu"
+          },
+          {
+            "label": "C",
+            "text": "Penulis : Penerbit"
+          },
+          {
+            "label": "D",
+            "text": "Sutradara : Film"
+          },
+          {
+            "label": "E",
+            "text": "Pelukis : Kanvas"
+          }
+        ],
+        "correctOptionLabel": "D",
+        "explanation": "Hubungannya adalah 'pencipta : karya seni kompleks yang diciptakannya'. Komponis menciptakan simfoni. Sutradara menciptakan (mengarahkan dan merangkai) sebuah film. Pilihan B kurang tepat karena penyanyi seringkali hanya membawakan/menginterpretasikan lagu, bukan menciptakannya. Pilihan C salah karena penerbit adalah pihak yang mempublikasikan, bukan karya itu sendiri. Pilihan E salah karena kanvas adalah media, bukan karya jadinya."
+      }
+    ],
+    "answers": {
+      "0": {
+        "selected": null,
+        "isCorrect": false,
+        "timeSpent": 30,
+        "autoAdvance": true
+      },
+      "1": {
+        "selected": null,
+        "isCorrect": false,
+        "timeSpent": 30,
+        "autoAdvance": true
+      },
+      "2": {
+        "selected": "D",
+        "isCorrect": true,
+        "timeSpent": 6
+      },
+      "3": {
+        "selected": "D",
+        "isCorrect": false,
+        "timeSpent": 1
+      },
+      "4": {
+        "selected": "C",
+        "isCorrect": false,
+        "timeSpent": 1
+      },
+      "5": {
+        "selected": "C",
+        "isCorrect": false,
+        "timeSpent": 0
+      },
+      "6": {
+        "selected": "C",
+        "isCorrect": false,
+        "timeSpent": 1
+      },
+      "7": {
+        "selected": "E",
+        "isCorrect": true,
+        "timeSpent": 0
+      },
+      "8": {
+        "selected": "C",
+        "isCorrect": false,
+        "timeSpent": 0
+      },
+      "9": {
+        "selected": "D",
+        "isCorrect": false,
+        "timeSpent": 1
+      },
+      "10": {
+        "selected": "B",
+        "isCorrect": true,
+        "timeSpent": 0
+      },
+      "11": {
+        "selected": "A",
+        "isCorrect": false,
+        "timeSpent": 0
+      },
+      "12": {
+        "selected": "D",
+        "isCorrect": true,
+        "timeSpent": 1
+      },
+      "13": {
+        "selected": "D",
+        "isCorrect": false,
+        "timeSpent": 1
+      },
+      "14": {
+        "selected": "E",
+        "isCorrect": false,
+        "timeSpent": 0
+      },
+      "15": {
+        "selected": "E",
+        "isCorrect": false,
+        "timeSpent": 1
+      },
+      "16": {
+        "selected": "C",
+        "isCorrect": true,
+        "timeSpent": 0
+      },
+      "17": {
+        "selected": "C",
+        "isCorrect": false,
+        "timeSpent": 0
+      },
+      "18": {
+        "selected": "D",
+        "isCorrect": false,
+        "timeSpent": 0
+      },
+      "19": {
+        "selected": "E",
+        "isCorrect": false,
+        "timeSpent": 0
+      }
+    },
+    "currentIndex": 19,
+    "completed": true,
+    "config": {
+      "category": "mixed",
+      "difficulty": "sulit",
+      "userType": "serius",
+      "count": 20
+    },
+    "startedAt": 1762193608327,
+    "updatedAt": 1762193681205
   }
 ]
