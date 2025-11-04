@@ -39,6 +39,7 @@ type GenerateQuestionsBody = {
   userType?: string;
   count?: number;
   sessionId?: string;
+  customTimeSeconds?: number;
 };
 
 type GenerateQuestionsResponse = {
@@ -140,6 +141,14 @@ function buildCacheKey(config: SessionConfig) {
     config.difficulty,
     config.count,
   ]);
+}
+
+function normalizeCustomTimeSeconds(value: unknown): number | null {
+  const seconds = Number(value);
+  if (!Number.isFinite(seconds)) return null;
+  const rounded = Math.round(seconds);
+  if (rounded <= 0) return null;
+  return Math.min(rounded, 60 * 15); // cap at 15 minutes per soal
 }
 
 async function generateQuestions(
@@ -273,11 +282,14 @@ export async function POST(req: NextRequest) {
   if (Number.isNaN(count)) count = 10;
   count = Math.max(1, Math.min(50, count));
 
+  const customTimeSeconds = normalizeCustomTimeSeconds(body.customTimeSeconds);
+
   const config: SessionConfig = {
     category,
     difficulty,
     userType,
     count,
+    customTimeSeconds,
   };
 
   if (body.sessionId) {

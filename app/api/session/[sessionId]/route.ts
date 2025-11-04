@@ -1,6 +1,7 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import {
   AnswerSnapshot,
+  deleteSession,
   getSession,
   updateSession,
 } from "@/lib/session-store";
@@ -89,5 +90,20 @@ export async function PATCH(
       completed: updated.completed,
     },
   });
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  context: RouteContext
+) {
+  const { sessionId } = await context.params;
+  const removed = await deleteSession(sessionId);
+  if (!removed) {
+    return NextResponse.json(
+      { error: "Session tidak ditemukan." },
+      { status: 404 }
+    );
+  }
+  return NextResponse.json({ success: true });
 }
 

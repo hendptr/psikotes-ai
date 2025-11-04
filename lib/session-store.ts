@@ -16,6 +16,7 @@ export type SessionConfig = {
   category: string;
   difficulty: string;
   count: number;
+  customTimeSeconds?: number | null;
 };
 
 export type SessionRecord = {
@@ -97,6 +98,15 @@ export async function updateSession(
   sessionStore.set(sessionId, next);
   schedulePersist();
   return next;
+}
+
+export async function deleteSession(sessionId: string) {
+  await ensureInitialized();
+  const existed = sessionStore.delete(sessionId);
+  if (existed) {
+    schedulePersist();
+  }
+  return existed;
 }
 
 export async function listSessions() {

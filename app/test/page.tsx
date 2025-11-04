@@ -45,6 +45,7 @@ type SessionConfig = {
   category: string;
   difficulty: string;
   count: number;
+  customTimeSeconds?: number | null;
 };
 
 type GenerateQuestionsResponse = {
@@ -57,6 +58,13 @@ type GenerateQuestionsResponse = {
   };
   config: SessionConfig;
   source: "resume" | "cache" | "fresh";
+};
+
+type SessionPayload = {
+  sessionId: string;
+  questions: PsychotestQuestion[];
+  progress: GenerateQuestionsResponse["progress"];
+  config: SessionConfig;
 };
 
 type CodeComponentProps = {
@@ -111,6 +119,7 @@ const TIMER_RULES: Record<string, number> = {
 };
 
 const PIE_COLORS = ["#10b981", "#f97316", "#6b7280"];
+const API_BASE = "/winnieloveuu/api";
 
 function getTimerForMode(mode: string) {
   return TIMER_RULES[mode] ?? 30;
@@ -162,7 +171,16 @@ function buildAnalysis(
 
 function formatSeconds(seconds: number) {
   const safe = Math.max(0, Math.floor(seconds));
-  return `00:${String(safe).padStart(2, "0")}`;
+  const minutes = Math.floor(safe / 60);
+  const secs = safe % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+function getTimerDuration(mode: string, customTimeSeconds?: number | null) {
+  if (typeof customTimeSeconds === "number" && Number.isFinite(customTimeSeconds) && customTimeSeconds > 0) {
+    return customTimeSeconds;
+  }
+  return getTimerForMode(mode);
 }
 
 // The main component logic is moved into TestView
@@ -170,11 +188,20 @@ function TestView() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const parseCustomTime = () => {
+    const raw = Number(searchParams.get("customTimeSeconds"));
+    if (!Number.isFinite(raw)) return null;
+    const rounded = Math.round(raw);
+    if (rounded <= 0) return null;
+    return Math.min(rounded, 60 * 15);
+  };
+
   const initialConfig: SessionConfig = {
     userType: searchParams.get("userType") ?? "serius",
     category: searchParams.get("category") ?? "mixed",
     difficulty: searchParams.get("difficulty") ?? "sulit",
     count: Number(searchParams.get("count") ?? 20),
+    customTimeSeconds: parseCustomTime(),
   };
 
   const resumeParam = searchParams.get("sessionId");
@@ -191,7 +218,7 @@ function TestView() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [viewMode, setViewMode] = useState<"test" | "results">("test");
   const [secondsRemaining, setSecondsRemaining] = useState<number>(
-    getTimerForMode(initialConfig.userType)
+    getTimerDuration(initialConfig.userType, initialConfig.customTimeSeconds)
   );
   const [reloadToken, setReloadToken] = useState<number>(0);
   const [, setFeedback] = useState<"correct" | "wrong" | null>(null);
@@ -199,6 +226,21 @@ function TestView() {
 
   const timeoutHandledRef = useRef<boolean>(false);
   const geniusCelebratedRef = useRef<boolean>(false);
+
+  function applySessionPayload(payload: SessionPayload) {
+    setSessionId(payload.sessionId);
+    setQuestions(payload.questions);
+    setAnswers(payload.progress?.answers ?? {});
+    setCurrentIndex(payload.progress?.currentIndex ?? 0);
+    setSessionConfig(payload.config);
+    requestConfigRef.current = payload.config;
+    setViewMode(payload.progress?.completed ? "results" : "test");
+    setSecondsRemaining(
+      getTimerDuration(payload.config.userType, payload.config.customTimeSeconds)
+    );
+    timeoutHandledRef.current = false;
+    geniusCelebratedRef.current = false;
+  }
 
   const total = questions.length;
   const answeredCount = useMemo(
@@ -244,28 +286,73 @@ function TestView() {
   useEffect(() => {
     timeoutHandledRef.current = false;
     if (viewMode === "test") {
-      setSecondsRemaining(getTimerForMode(sessionConfig.userType));
+      setSecondsRemaining(
+        getTimerDuration(sessionConfig.userType, sessionConfig.customTimeSeconds)
+      );
     }
-  }, [currentIndex, sessionConfig.userType, viewMode]);
+  }, [currentIndex, sessionConfig.customTimeSeconds, sessionConfig.userType, viewMode]);
 
   useEffect(() => {
+    if (!resumeSession) return;
+
     let active = true;
+    setLoading(true);
+    setError(null);
 
-    async function fetchQuestions() {
-      setLoading(true);
-      setError(null);
+    (async () => {
+      try {
+        const resumeRes = await fetch(`${API_BASE}/session/${resumeSession}`, {
+          cache: "no-store",
+        });
+        if (!active) return;
+        if (resumeRes.ok) {
+          const resumeData = (await resumeRes.json()) as SessionPayload;
+          applySessionPayload(resumeData);
+          if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            params.delete("sessionId");
+            const query = params.toString();
+            router.replace(query ? `/test?${query}` : "/test", { scroll: false });
+          }
+        } else if (resumeRes.status !== 404) {
+          const resumeError = await resumeRes.json().catch(() => ({}));
+          throw new Error(resumeError.error || "Gagal memuat sesi tersimpan.");
+        }
+      } catch (err: unknown) {
+        if (!active) return;
+        console.warn("Gagal memuat sesi tersimpan:", err);
+        setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
+      } finally {
+        if (active) {
+          setLoading(false);
+          setResumeSession(null);
+        }
+      }
+    })();
 
+    return () => {
+      active = false;
+    };
+  }, [resumeSession, router]);
+
+  const hasLoadedSession = sessionId !== null && questions.length > 0;
+
+  useEffect(() => {
+    if (resumeSession) return;
+    if (hasLoadedSession) return;
+
+    let active = true;
+    setLoading(true);
+    setError(null);
+
+    (async () => {
       try {
         const payload: Record<string, unknown> = {
           ...requestConfigRef.current,
           count: requestConfigRef.current.count,
         };
 
-        if (resumeSession) {
-          payload.sessionId = resumeSession;
-        }
-
-        const res = await fetch("/winnieloveuu/api/generate-questions", {
+        const res = await fetch(`${API_BASE}/generate-questions`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -279,39 +366,21 @@ function TestView() {
         const data = (await res.json()) as GenerateQuestionsResponse;
         if (!active) return;
 
-        setSessionId(data.sessionId);
-        setQuestions(data.questions);
-        setAnswers(data.progress?.answers ?? {});
-        setCurrentIndex(data.progress?.currentIndex ?? 0);
-        setSessionConfig(data.config);
-        requestConfigRef.current = data.config;
-        setViewMode(data.progress?.completed ? "results" : "test");
-        setSecondsRemaining(getTimerForMode(data.config.userType));
-        timeoutHandledRef.current = false;
-        geniusCelebratedRef.current = false;
-
-        if (resumeSession && typeof window !== "undefined") {
-          const params = new URLSearchParams(window.location.search);
-          params.delete("sessionId");
-          const query = params.toString();
-          router.replace(query ? `/test?${query}` : "/test", { scroll: false });
-        }
-        setResumeSession(null);
+        applySessionPayload(data);
       } catch (err: unknown) {
         if (!active) return;
-        setError(err instanceof Error ? err.message : "Terjadi kesalahan." );
+        setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
       } finally {
         if (active) {
           setLoading(false);
         }
       }
-    }
+    })();
 
-    fetchQuestions();
     return () => {
       active = false;
     };
-  }, [reloadToken, resumeSession, router]);
+  }, [hasLoadedSession, reloadToken, resumeSession]);
 
   useEffect(() => {
     if (
@@ -337,9 +406,11 @@ function TestView() {
     return () => window.clearInterval(interval);
   }, [loading, questions.length, viewMode]);
 
+  const timerDuration = getTimerDuration(sessionConfig.userType, sessionConfig.customTimeSeconds);
+
   const timerRatio =
-    getTimerForMode(sessionConfig.userType) > 0
-      ? Math.max(0, secondsRemaining / getTimerForMode(sessionConfig.userType))
+    timerDuration > 0
+      ? Math.max(0, secondsRemaining / timerDuration)
       : 0;
 
   const persistProgress = useCallback(
@@ -350,7 +421,7 @@ function TestView() {
     }) => {
       if (!sessionId) return;
       try {
-        await fetch(`/api/session/${sessionId}`, {
+        await fetch(`${API_BASE}/session/${sessionId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -375,7 +446,7 @@ function TestView() {
       [currentIndex]: {
         selected: null,
         isCorrect: false,
-        timeSpent: getTimerForMode(sessionConfig.userType),
+        timeSpent: timerDuration,
         autoAdvance: true,
       },
     };
@@ -425,7 +496,7 @@ function TestView() {
       }
 
       const isCorrect = label === currentQuestion.correctOptionLabel;
-      const timeSpent = getTimerForMode(sessionConfig.userType) - secondsRemaining;
+      const timeSpent = timerDuration - secondsRemaining;
       const nextAnswers = {
         ...answers,
         [currentIndex]: {

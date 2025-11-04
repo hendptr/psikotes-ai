@@ -52,6 +52,19 @@ const DIFFICULTY_OPTIONS = [
   { value: "sulit", label: "Sulit" },
 ];
 
+function formatDurationLabel(seconds: number) {
+  const safe = Math.max(0, Math.round(seconds));
+  const minutes = Math.floor(safe / 60);
+  const secs = safe % 60;
+  if (minutes && secs) {
+    return `${minutes} menit ${secs} detik`;
+  }
+  if (minutes) {
+    return `${minutes} menit`;
+  }
+  return `${secs} detik`;
+}
+
 const SNAPSHOTS = [
   { label: "Total Sesi", value: "∞" },
   { label: "Timer", value: "15 - 45 detik" },
@@ -66,12 +79,19 @@ export default function LandingPage() {
   const [category, setCategory] = useState<string>("mixed");
   const [difficulty, setDifficulty] = useState<string>("sulit");
   const [count, setCount] = useState<number>(20);
+  const [useCustomTimer, setUseCustomTimer] = useState<boolean>(false);
+  const [customMinutes, setCustomMinutes] = useState<number>(0);
+  const [customSeconds, setCustomSeconds] = useState<number>(30);
   const [resumeSessionId, setResumeSessionId] = useState<string>("");
   const [resumeError, setResumeError] = useState<string>("");
 
   const activeMode = useMemo(
     () => MODE_CARDS.find((mode) => mode.id === userType) ?? MODE_CARDS[1],
     [userType]
+  );
+  const totalCustomSeconds = useMemo(
+    () => Math.max(0, Math.min(customMinutes * 60 + customSeconds, 60 * 15)),
+    [customMinutes, customSeconds]
   );
 
   function handleStart() {
@@ -81,6 +101,9 @@ export default function LandingPage() {
       difficulty,
       count: String(count),
     });
+    if (useCustomTimer && totalCustomSeconds > 0) {
+      params.set("customTimeSeconds", String(totalCustomSeconds));
+    }
     router.push(`/test?${params.toString()}`);
   }
 
@@ -217,6 +240,62 @@ export default function LandingPage() {
                 <span>30</span>
                 <span>50</span>
               </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <span>Custom waktu per soal</span>
+                <span className="rounded-full bg-slate-900/5 px-2 py-1 text-[11px] text-slate-700">
+                  {useCustomTimer && totalCustomSeconds > 0
+                    ? formatDurationLabel(totalCustomSeconds)
+                    : "Ikuti mode"}
+                </span>
+              </div>
+              <label className="inline-flex items-center gap-2 text-sm text-slate-600">
+                <input
+                  type="checkbox"
+                  checked={useCustomTimer}
+                  onChange={(event) => setUseCustomTimer(event.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                />
+                Gunakan pengatur waktu sendiri
+              </label>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="space-y-1">
+                  <span className="block text-xs uppercase tracking-wide text-slate-400">Menit</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={15}
+                    value={customMinutes}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      if (Number.isNaN(value)) return;
+                      setCustomMinutes(Math.max(0, Math.min(15, Math.floor(value))));
+                    }}
+                    disabled={!useCustomTimer}
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-slate-700 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <span className="block text-xs uppercase tracking-wide text-slate-400">Detik</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={59}
+                    value={customSeconds}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      if (Number.isNaN(value)) return;
+                      setCustomSeconds(Math.max(0, Math.min(59, Math.floor(value))));
+                    }}
+                    disabled={!useCustomTimer}
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-slate-700 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+                  />
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Pengaturan custom berlaku untuk sesi ini saja (maksimal 15 menit per soal).
+              </p>
             </div>
             <button
               type="button"
