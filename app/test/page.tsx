@@ -187,22 +187,25 @@ function getTimerDuration(mode: string, customTimeSeconds?: number | null) {
 function TestView() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryKey = searchParams.toString();
 
-  const parseCustomTime = () => {
-    const raw = Number(searchParams.get("customTimeSeconds"));
-    if (!Number.isFinite(raw)) return null;
-    const rounded = Math.round(raw);
-    if (rounded <= 0) return null;
-    return Math.min(rounded, 60 * 15);
-  };
+  const initialConfig: SessionConfig = useMemo(() => {
+    const parseCustomTime = () => {
+      const raw = Number(searchParams.get("customTimeSeconds"));
+      if (!Number.isFinite(raw)) return null;
+      const rounded = Math.round(raw);
+      if (rounded <= 0) return null;
+      return Math.min(rounded, 60 * 15);
+    };
 
-  const initialConfig: SessionConfig = {
-    userType: searchParams.get("userType") ?? "serius",
-    category: searchParams.get("category") ?? "mixed",
-    difficulty: searchParams.get("difficulty") ?? "sulit",
-    count: Number(searchParams.get("count") ?? 20),
-    customTimeSeconds: parseCustomTime(),
-  };
+    return {
+      userType: searchParams.get("userType") ?? "serius",
+      category: searchParams.get("category") ?? "mixed",
+      difficulty: searchParams.get("difficulty") ?? "sulit",
+      count: Number(searchParams.get("count") ?? 20),
+      customTimeSeconds: parseCustomTime(),
+    };
+  }, [queryKey]);
 
   const resumeParam = searchParams.get("sessionId");
   const requestConfigRef = useRef<SessionConfig>(initialConfig);
@@ -226,6 +229,34 @@ function TestView() {
 
   const timeoutHandledRef = useRef<boolean>(false);
   const geniusCelebratedRef = useRef<boolean>(false);
+  const firstLoadRef = useRef<boolean>(true);
+  const configKey = JSON.stringify(initialConfig);
+  const hasLoadedSession = sessionId !== null && questions.length > 0;
+
+  useEffect(() => {
+    if (resumeParam) {
+      setResumeSession(resumeParam);
+    }
+  }, [resumeParam]);
+
+  useEffect(() => {
+    if (firstLoadRef.current) {
+      firstLoadRef.current = false;
+      return;
+    }
+    requestConfigRef.current = initialConfig;
+    setSessionConfig(initialConfig);
+    setSessionId(null);
+    setQuestions([]);
+    setAnswers({});
+    setCurrentIndex(0);
+    setViewMode("test");
+    setSecondsRemaining(
+      getTimerDuration(initialConfig.userType, initialConfig.customTimeSeconds)
+    );
+    setError(null);
+    setReloadToken((prev) => prev + 1);
+  }, [configKey]);
 
   function applySessionPayload(payload: SessionPayload) {
     setSessionId(payload.sessionId);
@@ -238,6 +269,7 @@ function TestView() {
     setSecondsRemaining(
       getTimerDuration(payload.config.userType, payload.config.customTimeSeconds)
     );
+    setError(null);
     timeoutHandledRef.current = false;
     geniusCelebratedRef.current = false;
   }
@@ -295,9 +327,12 @@ function TestView() {
   useEffect(() => {
     if (!resumeSession) return;
 
+    const shouldShowLoader = !hasLoadedSession;
     let active = true;
-    setLoading(true);
-    setError(null);
+    if (shouldShowLoader) {
+      setLoading(true);
+      setError(null);
+    }
 
     (async () => {
       try {
@@ -321,10 +356,14 @@ function TestView() {
       } catch (err: unknown) {
         if (!active) return;
         console.warn("Gagal memuat sesi tersimpan:", err);
-        setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
+        if (shouldShowLoader) {
+          setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
+        }
       } finally {
         if (active) {
-          setLoading(false);
+          if (shouldShowLoader) {
+            setLoading(false);
+          }
           setResumeSession(null);
         }
       }
@@ -333,16 +372,17 @@ function TestView() {
     return () => {
       active = false;
     };
-  }, [resumeSession, router]);
-
-  const hasLoadedSession = sessionId !== null && questions.length > 0;
+  }, [hasLoadedSession, resumeSession, router]);
 
   useEffect(() => {
     if (resumeSession) return;
-    if (hasLoadedSession) return;
+    if (hasLoadedSession && reloadToken === 0) return;
 
     let active = true;
-    setLoading(true);
+    const shouldShowLoader = !hasLoadedSession;
+    if (shouldShowLoader) {
+      setLoading(true);
+    }
     setError(null);
 
     (async () => {
@@ -369,9 +409,13 @@ function TestView() {
         applySessionPayload(data);
       } catch (err: unknown) {
         if (!active) return;
-        setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
+        if (!hasLoadedSession) {
+          setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
+        } else {
+          console.warn("Gagal memperbarui soal, mempertahankan data lama:", err);
+        }
       } finally {
-        if (active) {
+        if (active && shouldShowLoader) {
           setLoading(false);
         }
       }
@@ -589,7 +633,7 @@ function TestView() {
     );
   }
 
-  if (error) {
+  if (error && !hasLoadedSession) {
     return (
       <div className="mx-auto flex min-h-[70vh] w-full max-w-5xl items-center justify-center px-5">
         <div className="space-y-4 rounded-3xl bg-white px-6 py-6 shadow-sm">
@@ -608,6 +652,12 @@ function TestView() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-5 py-10">
+      {error && hasLoadedSession && (
+        <div className="rounded-3xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          <p className="font-semibold">Terjadi kendala saat memuat soal baru.</p>
+          <p className="mt-1">{error}</p>
+        </div>
+      )}
       <header className="rounded-3xl bg-white px-6 py-6 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="space-y-2">
