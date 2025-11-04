@@ -9,15 +9,12 @@ const fontSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Psychotest Studio",
+  title: "I LOVEE UUU WINNNIEEE",
   description: "Kelola sesi latihan psikotes modern dengan antarmuka yang bersih dan responsif.",
 };
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/" },
-  { label: "Latihan Saya", href: "#" },
-  { label: "Riwayat", href: "#" },
-  { label: "Pembayaran", href: "#" },
+  { label: "Dashboard", href: "/winnieloveuu" },
 ];
 
 export default function RootLayout({
@@ -36,7 +33,7 @@ export default function RootLayout({
               </div>
               <div>
                 <p className="text-base font-semibold">Loveee uuu Winnieeee!!!</p>
-                <p className="text-xs text-slate-500">Rancang dan pantau latihan kamu</p>
+                <p className="text-xs text-slate-500">Tsuki Ga Kireiii Desunee???</p>
               </div>
             </div>
             <nav className="mt-10 space-y-1 text-sm">
@@ -65,14 +62,14 @@ export default function RootLayout({
                 <p className="text-sm font-semibold text-slate-800">Semoga bisa bantu winniee!</p>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-500">
-                <span>Aku Pakek AI Buat Generate Soal</span>
+                <span>Winnie Winnieeeeee Cantikkkkkkkkkk</span>
               </div>
             </header>
 
             <main className="flex-1 px-5 py-8 md:px-8 md:py-10">{children}</main>
 
             <footer className="border-t border-slate-200 bg-white px-5 py-4 text-xs text-slate-500 md:px-8">
-              <span>© {new Date().getFullYear()} Psychotest Studio. Fokus pada kemajuanmu setiap sesi.</span>
+              <span>Lovee u Winnieee -Kadek.</span>
             </footer>
           </div>
         </div>
