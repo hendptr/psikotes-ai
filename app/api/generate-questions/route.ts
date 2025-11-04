@@ -20,6 +20,7 @@ type Category =
   | "sinonim_antonim"
   | "hafalan_kata"
   | "deret_matematika"
+  | "perbandingan_senilai_berbalik"
   | "mixed";
 
 type PsychotestQuestion = {
@@ -93,6 +94,17 @@ Jenis soal: DERET MATEMATIKA SULIT.
 - Boleh pakai huruf untuk mewakili posisi (A,B,C) selama jelas.
 - Pilihan jawaban harus berupa isi titik kosong yang benar (boleh satu nilai, boleh dua nilai seperti "8 dan 48").
 `;
+    case "perbandingan_senilai_berbalik":
+      return `
+Jenis soal: PERBANDINGAN SENILAI & BERBALIK NILAI (cerita).
+- Setiap soal harus berupa cerita kontekstual (tokoh, objek, situasi) yang relevan dengan kehidupan sehari-hari.
+- Tentukan apakah masalahnya termasuk perbandingan senilai atau berbalik nilai dan tekankan di pembahasan.
+- Jika ada satuan berbeda (m, cm, liter, kg, dst.), selaraskan terlebih dahulu sebelum menghitung perbandingan.
+- Untuk perbandingan senilai, gunakan proporsi langsung (misalnya jumlah barang berbanding lurus dengan harga total).
+- Untuk perbandingan berbalik nilai, gunakan proporsi terbalik (misalnya waktu kerja berbanding terbalik dengan jumlah pekerja).
+- Tuliskan "questionType" yang mencerminkan tipe soal, misalnya "Perbandingan Senilai" atau "Perbandingan Berbalik Nilai".
+- Pastikan jawaban benar didukung perhitungan sederhana yang dijelaskan di "explanation".
+`;
     case "mixed":
     default:
       return `
@@ -102,6 +114,7 @@ Kategori CAMPURAN:
   - sinonim_antonim
   - hafalan_kata
   - deret_matematika (sulit)
+  - perbandingan_senilai_berbalik (cerita)
 - Pastikan field "category" di JSON mencerminkan kategori aktual tiap soal.
 `;
   }

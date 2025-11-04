@@ -40,6 +40,10 @@ const CATEGORY_OPTIONS = [
   { value: "sinonim_antonim", label: "Sinonim / Antonim" },
   { value: "hafalan_kata", label: "Hafalan Kata" },
   { value: "deret_matematika", label: "Deret Matematika" },
+  {
+    value: "perbandingan_senilai_berbalik",
+    label: "Perbandingan Senilai / Berbalik",
+  },
 ];
 
 const DIFFICULTY_OPTIONS = [

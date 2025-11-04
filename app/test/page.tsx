@@ -512,7 +512,7 @@ function TestView() {
     return (
       <div className="mx-auto flex min-h-[70vh] w-full max-w-5xl items-center justify-center px-5">
         <div className="rounded-3xl bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
-          Menyiapkan soal dari AI...
+          Menyiapkan soal ....
         </div>
       </div>
     );
