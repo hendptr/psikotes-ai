@@ -291,7 +291,7 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
           type="button"
           onClick={handleStart}
           disabled={loading}
-          className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 disabled:opacity-70"
+          className="inline-flex items-center gap-2 rounded-full bg-sky-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 disabled:opacity-70"
         >
           {loading ? "Menyiapkan soal..." : "Mulai Latihan"}
           <span aria-hidden className="text-lg">{">"}</span>

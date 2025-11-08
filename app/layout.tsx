@@ -25,7 +25,9 @@ export default async function RootLayout({
 
   return (
     <html lang="id">
-      <body className={`${fontSans.variable} bg-slate-100 text-slate-900 antialiased`}>
+      <body
+        className={`${fontSans.variable} bg-gradient-to-b from-sky-50 via-white to-blue-50 text-slate-900 antialiased`}
+      >
         <div className="flex min-h-screen flex-col">
           <Navbar user={user} />
           <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
@@ -42,5 +44,4 @@ export default async function RootLayout({
     </html>
   );
 }
-
 

@@ -31,13 +31,13 @@ export default async function KreplinPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/kreplin/test?mode=tryout"
-                className="rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-slate-800"
+                className="rounded-full bg-sky-600 px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-sky-500"
               >
                 Mulai Try Out (60 kolom)
               </Link>
               <Link
                 href="/kreplin/test?mode=auto&duration=600"
-                className="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+                className="rounded-full border border-sky-200 px-5 py-3 text-sm font-semibold text-sky-700 transition hover:border-sky-300 hover:bg-sky-50"
               >
                 Latihan 10 menit
               </Link>
@@ -52,7 +52,7 @@ export default async function KreplinPage() {
                   <Link
                     key={seconds}
                     href={`/kreplin/test?mode=auto&duration=${seconds}`}
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+                    className="rounded-2xl border border-sky-100 bg-white px-4 py-3 text-center font-semibold text-sky-800 transition hover:border-sky-300 hover:bg-sky-50"
                   >
                     {Math.round(seconds / 60)} menit
                   </Link>
@@ -73,7 +73,7 @@ export default async function KreplinPage() {
                   />
                   <button
                     type="submit"
-                    className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                    className="rounded-full bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500"
                   >
                     Mulai
                   </button>
