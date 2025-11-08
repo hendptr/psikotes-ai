@@ -20,6 +20,12 @@ const questionSchema = z.object({
 });
 
 const questionArraySchema = z.array(questionSchema);
+const chunkSizeRaw = process.env.GEMINI_CHUNK_SIZE?.trim();
+const chunkSizeNumber = chunkSizeRaw ? Number(chunkSizeRaw) : NaN;
+const DEFAULT_CHUNK_SIZE = Math.max(
+  1,
+  Number.isFinite(chunkSizeNumber) && chunkSizeNumber > 0 ? chunkSizeNumber : 10
+);
 
 const CATEGORY_INSTRUCTIONS: Record<string, string> = {
   perbandingan_senilai_berbalik: `
@@ -91,15 +97,24 @@ function resolveApiKeys(): string[] {
     .filter(Boolean);
 }
 
-export async function generatePsychotestQuestions(
-  params: GenerationParams
-): Promise<PsychotestQuestion[]> {
-  const apiKeys = resolveApiKeys();
-  if (!apiKeys.length) {
-    throw new GeminiUnavailableError("Gemini API key is not configured.");
+function resolveModels(): string[] {
+  const raw = process.env.GEMINI_MODELS;
+  if (!raw) {
+    return ["models/gemini-2.5-pro", "models/gemini-2.5-flash"];
   }
+  const parsed = raw
+    .split(/[,|\n]/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+  return parsed.length ? parsed : ["models/gemini-2.5-pro", "models/gemini-2.5-flash"];
+}
 
-  const modelCandidates = ["models/gemini-2.5-pro"];
+async function requestQuestionsWithFallback(
+  params: GenerationParams,
+  apiKeys: string[],
+  modelCandidates: string[],
+  chunkLabel: string
+): Promise<PsychotestQuestion[]> {
   let lastError: unknown = null;
 
   for (const apiKey of apiKeys) {
@@ -116,30 +131,79 @@ export async function generatePsychotestQuestions(
 
         const response = await model.generateContent(buildPrompt(params));
         const text = response.response.text();
-        const parsed = questionArraySchema.parse(JSON.parse(text));
-        if (parsed.length) {
-          return parsed
-            .slice(0, params.count)
-            .map((item) => ({
-              ...item,
-              options: item.options.map<QuestionOption>((option) => ({
-                label: option.label,
-                text: option.text,
-              })),
-            })) as PsychotestQuestion[];
+        if (!text?.trim()) {
+          throw new Error(`[${chunkLabel}] Model ${modelName} mengembalikan respon kosong.`);
         }
+
+        let parsed: unknown;
+        try {
+          parsed = JSON.parse(text);
+        } catch (parseError) {
+          console.error(
+            `[Gemini][${chunkLabel}] JSON.parse gagal untuk model ${modelName}. Cuplikan:`,
+            text.slice(0, 2000)
+          );
+          throw new Error(`[${chunkLabel}] Respon AI tidak valid (JSON gagal di-parse).`);
+        }
+
+        const questions = questionArraySchema.parse(parsed);
+        if (!questions.length) {
+          throw new Error(`[${chunkLabel}] Respon AI tidak berisi soal.`);
+        }
+
+        return questions.slice(0, params.count).map((item) => ({
+          ...item,
+          options: item.options.map<QuestionOption>((option) => ({
+            label: option.label,
+            text: option.text,
+          })),
+        })) as PsychotestQuestion[];
       } catch (error) {
         lastError = error;
         console.error(
-          `Gemini generation error for key ****${apiKey.slice(-4)} model ${modelName}, trying next key/model:`,
+          `[Gemini][${chunkLabel}] error key ****${apiKey.slice(-4)} model ${modelName}, mencoba opsi berikutnya:`,
           error
         );
       }
     }
   }
 
-  throw new GeminiUnavailableError(
-    "Layanan Gemini sedang penuh. Coba lagi dalam beberapa saat.",
-    lastError
-  );
+  const reason =
+    lastError instanceof Error ? lastError.message : "Model tidak merespons.";
+  throw new GeminiUnavailableError(`[${chunkLabel}] ${reason}`, lastError);
+}
+
+export async function generatePsychotestQuestions(
+  params: GenerationParams
+): Promise<PsychotestQuestion[]> {
+  const apiKeys = resolveApiKeys();
+  if (!apiKeys.length) {
+    throw new GeminiUnavailableError("Gemini API key is not configured.");
+  }
+
+  const modelCandidates = resolveModels();
+  const chunkSize = Math.max(1, Math.min(DEFAULT_CHUNK_SIZE, params.count));
+  const results: PsychotestQuestion[] = [];
+  let chunkIndex = 0;
+
+  while (results.length < params.count) {
+    const remaining = params.count - results.length;
+    const batchSize = Math.min(chunkSize, remaining);
+    chunkIndex += 1;
+    const chunkLabel = `chunk-${chunkIndex}`;
+    const chunkParams: GenerationParams = {
+      ...params,
+      count: batchSize,
+    };
+
+    const chunk = await requestQuestionsWithFallback(
+      chunkParams,
+      apiKeys,
+      modelCandidates,
+      chunkLabel
+    );
+    results.push(...chunk);
+  }
+
+  return results.slice(0, params.count);
 }

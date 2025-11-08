@@ -62,6 +62,37 @@ function formatSeconds(seconds: number) {
   return `${minutes} menit ${secs} detik/soal`;
 }
 
+type SessionSnapshot = {
+  id: string;
+  startedAt: string;
+};
+
+async function recoverCreatedSession(attemptStartedAt: number): Promise<SessionSnapshot | null> {
+  try {
+    const response = await fetch(`${API_BASE}/test-sessions`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json().catch(() => null);
+    const sessions = Array.isArray(data?.sessions) ? (data.sessions as SessionSnapshot[]) : [];
+    if (!sessions.length) {
+      return null;
+    }
+    const threshold = attemptStartedAt - 2000; // tolerate small clock drift
+    const candidate = sessions.find((session) => {
+      const startedMs = new Date(session.startedAt).getTime();
+      return Number.isFinite(startedMs) && startedMs >= threshold;
+    });
+    return candidate ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default function CreateSessionForm({ isAuthenticated }: CreateSessionFormProps) {
   const router = useRouter();
   const [userType, setUserType] = useState<string>(MODE_OPTIONS[0].value);
@@ -97,6 +128,7 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
 
     setError(null);
     setLoading(true);
+    const attemptStartedAt = Date.now();
 
     try {
       const payload: Record<string, unknown> = {
@@ -118,12 +150,29 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
 
       if (!response.ok) {
         const result = await response.json().catch(() => null);
+        const recovered = await recoverCreatedSession(attemptStartedAt);
+        if (recovered) {
+          if (typeof window !== "undefined") {
+            window.alert("Sesi sudah siap. Membuka sesi tersebut ya.");
+          }
+          router.push(`/test/${recovered.id}`);
+          return;
+        }
         throw new Error(result?.error ?? "Tidak bisa membuat sesi. Coba lagi ya.");
       }
 
       const json = await response.json();
       router.push(`/test/${json.sessionId}`);
     } catch (err) {
+      const recovered = await recoverCreatedSession(attemptStartedAt);
+      if (recovered) {
+        if (typeof window !== "undefined") {
+          window.alert("Sesi sudah siap. Membuka sesi tersebut ya.");
+        }
+        router.push(`/test/${recovered.id}`);
+        return;
+      }
+
       const message = err instanceof Error ? err.message : "Terjadi kesalahan.";
       setError(message);
       if (typeof window !== "undefined") {
@@ -224,7 +273,7 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
             <input
               type="range"
               min={5}
-              max={50}
+              max={30}
               step={1}
               value={count}
               onChange={(event) => setCount(Number(event.target.value))}

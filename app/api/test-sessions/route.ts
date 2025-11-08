@@ -39,12 +39,12 @@ const createSessionSchema = z.object({
     ])
     .or(z.string().min(1)),
   difficulty: z.enum(["mudah", "sedang", "sulit"]).or(z.string().min(1)),
-  count: z.number().int().min(1).max(50),
+  count: z.number().int().min(1).max(30),
   customDurationSeconds: z.number().int().min(10).max(900).nullable().optional(),
 });
 
 function clampCount(value: number) {
-  return Math.min(50, Math.max(1, value));
+  return Math.min(30, Math.max(1, value));
 }
 
 async function createQuestionInstances(
