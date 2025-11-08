@@ -25,8 +25,8 @@ export default async function KreplinPage() {
             <h1 className="text-3xl font-semibold text-slate-900">Latihan fokus & konsistensi</h1>
             <p className="text-sm leading-relaxed text-slate-600">
               Pilih mode latihan ringan atau langsung simulasi 60 kolom ala tes kerja asli. Hasilnya
-              kami simpan otomatis lengkap dengan grafik per kolom dan kecepatan per menit supaya
-              kamu bisa memantau perkembanganmu.
+              disimpan otomatis lengkap dengan grafik per kolom dan kecepatan per menit supaya
+              bisa memantau perkembangan winniee.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -46,7 +46,7 @@ export default async function KreplinPage() {
           <div className="space-y-5 rounded-3xl border border-slate-100 bg-slate-50 p-6">
             <h2 className="text-base font-semibold text-slate-900">Mode latihan bebas</h2>
             <div className="space-y-3 text-sm text-slate-600">
-              <p>Pilih durasi dan mode input:</p>
+              <p>Pilih durasi cepat:</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {[300, 600, 900].map((seconds) => (
                   <Link
@@ -58,9 +58,30 @@ export default async function KreplinPage() {
                   </Link>
                 ))}
               </div>
-              <p className="text-xs text-slate-500">
-                Mode manual tersedia di halaman tes dengan opsi penghapusan & submit jawaban.
-              </p>
+              <div className="rounded-2xl border border-slate-200 bg-white/80 p-3">
+                <p className="text-sm font-semibold text-slate-700">Atau durasi custom (menit)</p>
+                <form action="/kreplin/test" className="mt-2 flex flex-wrap items-center gap-2">
+                  <input type="hidden" name="mode" value="auto" />
+                  <input
+                    type="number"
+                    name="minutes"
+                    min={1}
+                    max={120}
+                    placeholder="contoh 12"
+                    required
+                    className="w-24 rounded-xl border border-slate-200 px-3 py-2 text-center text-sm focus:border-slate-400 focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                  >
+                    Mulai
+                  </button>
+                  <span className="text-xs text-slate-500">
+                    Mode manual bisa dipilih di layar tes.
+                  </span>
+                </form>
+              </div>
             </div>
           </div>
         </div>

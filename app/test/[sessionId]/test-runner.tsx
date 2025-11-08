@@ -512,13 +512,13 @@ export default function TestRunner({ session }: TestRunnerProps) {
           </div>
         </div>
         <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-lg">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Catatan cinta</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Catatan dari Kedak</p>
           <p className="mt-4 leading-relaxed">
             {accuracy >= 80
-              ? "Wow! Kamu on fire banget. Pertahankan ritme ini dan kamu bakal unstoppable."
+              ? "Wow! KERENNNNNNNNNN, SS dan ku traktir eskrim!"
               : accuracy >= 60
-              ? "Keren! Tinggal dikit lagi untuk stabil di zona nyaman. Terus latihan ya."
-              : "Santai, pelan-pelan juga boleh. Yang penting terus coba lagi dan nikmati prosesnya ya."}
+              ? "Winnie winniiee lovee uuuuu"
+              : "Lovee u Winniee!!."}
           </p>
         </div>
         {isComplete && completion.status === "completed" && (

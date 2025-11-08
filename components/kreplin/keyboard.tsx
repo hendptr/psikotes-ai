@@ -22,7 +22,7 @@ function KeyButton({ children, onClick, className = "" }: KeyButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className={`flex h-14 items-center justify-center rounded-2xl bg-slate-900 text-xl font-semibold text-white shadow transition active:translate-y-px active:bg-slate-800 ${className}`}
+      className={`flex h-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white shadow transition active:translate-y-px active:bg-slate-800 ${className}`}
     >
       {children}
     </button>

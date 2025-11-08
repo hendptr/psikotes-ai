@@ -58,7 +58,14 @@ function TesKoran() {
   const mode = (searchParams.get("mode") as TestMode) ?? "auto";
   const isTryout = mode === "tryout";
 
-  const customDuration = parseInt(searchParams.get("duration") ?? "600", 10);
+  const minutesParam = searchParams.get("minutes");
+  const durationParam = searchParams.get("duration");
+  const requestedDuration = minutesParam
+    ? parseInt(minutesParam, 10) * 60
+    : parseInt(durationParam ?? "600", 10);
+  const customDuration = Number.isFinite(requestedDuration) && requestedDuration > 0
+    ? requestedDuration
+    : 600;
   const initialDuration = isTryout ? TRYOUT_SECTIONS * TRYOUT_TIME_PER_SECTION : customDuration;
 
   const [previousTopNumber, setPreviousTopNumber] = useState<number | null>(null);
@@ -243,7 +250,7 @@ function TesKoran() {
   }, [initialDuration, totalTimeLeft]);
 
   return (
-    <div className="flex min-h-screen flex-col gap-6 p-4">
+    <div className="flex h-screen flex-col gap-4 bg-slate-50 px-3 py-4">
       {showSectionModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="rounded-3xl bg-white px-10 py-8 text-center shadow-2xl">
@@ -272,7 +279,7 @@ function TesKoran() {
         </div>
       </header>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+      <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow">
         <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-500">
           <span>Progress</span>
           <span>{completionRate.toFixed(0)}%</span>
@@ -285,14 +292,14 @@ function TesKoran() {
         </div>
       </div>
 
-      <main className="flex flex-1 flex-col items-center justify-center gap-6 rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-lg">
-        <div className="h-16 text-5xl font-semibold text-slate-300">
+      <main className="flex flex-1 flex-col items-center justify-center gap-4 rounded-3xl border border-slate-200 bg-white px-4 py-3 text-center shadow">
+        <div className="h-12 text-4xl font-semibold text-slate-300">
           {previousTopNumber ?? ""}
         </div>
-        <div className="text-8xl font-bold text-slate-900">{currentTopNumber}</div>
-        <div className="text-4xl text-slate-400">+</div>
-        <div className="text-8xl font-bold text-slate-900">{currentBottomNumber}</div>
-        <div className="h-16 text-5xl font-semibold text-slate-300 pt-4">{nextBottomNumber}</div>
+        <div className="text-7xl font-bold text-slate-900">{currentTopNumber}</div>
+        <div className="text-3xl text-slate-400">+</div>
+        <div className="text-7xl font-bold text-slate-900">{currentBottomNumber}</div>
+        <div className="h-12 text-4xl font-semibold text-slate-300 pt-2">{nextBottomNumber}</div>
         {mode === "manual" && (
           <div className="mt-4 text-center">
             <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Jawabanmu</p>
@@ -301,7 +308,7 @@ function TesKoran() {
         )}
       </main>
 
-      <footer className="flex flex-col items-center gap-4">
+      <footer className="flex flex-col items-center gap-3 pb-2">
         <Keyboard
           mode={mode === "manual" ? "manual" : "auto"}
           onKeyPress={handleKeyPress}
