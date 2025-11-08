@@ -60,6 +60,22 @@ export default function Navbar({ user }: NavbarProps) {
           )}
         </div>
       </div>
+
+      {user && (
+        <div className="mx-auto w-full max-w-6xl px-4 pb-3 pt-1 md:hidden">
+          <nav className="flex flex-wrap gap-2 text-sm font-medium text-slate-600">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex-1 rounded-full border border-slate-200 px-3 py-2 text-center transition hover:border-slate-400 hover:text-slate-900"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
