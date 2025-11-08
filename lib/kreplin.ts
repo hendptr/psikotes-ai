@@ -39,8 +39,12 @@ export async function listKreplinResults(userId: string, limit = 20) {
   const results = await KreplinResultModel.find({ userId })
     .sort({ createdAt: -1 })
     .limit(limit)
-    .lean<KreplinResultDocument[]>();
-  return results;
+    .lean<(Omit<KreplinResultDocument, "id"> & { _id: string })[]>();
+
+  return results.map((item) => ({
+    ...item,
+    id: item._id,
+  }));
 }
 
 export async function getKreplinResult(userId: string, resultId: string) {
@@ -48,8 +52,14 @@ export async function getKreplinResult(userId: string, resultId: string) {
   const result = await KreplinResultModel.findOne({
     _id: resultId,
     userId,
-  }).lean<KreplinResultDocument>();
-  return result;
+  }).lean<(Omit<KreplinResultDocument, "id"> & { _id: string })>();
+  if (!result) {
+    return null;
+  }
+  return {
+    ...result,
+    id: result._id,
+  };
 }
 
 export async function deleteKreplinResult(userId: string, resultId: string) {
