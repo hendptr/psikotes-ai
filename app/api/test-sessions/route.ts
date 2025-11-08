@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
+import mongoose, { type ClientSession } from "mongoose";
 import { connectMongo } from "@/lib/MongoDB";
 import {
   QuestionInstanceModel,
@@ -49,7 +50,8 @@ function clampCount(value: number) {
 
 async function createQuestionInstances(
   sessionId: string,
-  questions: PsychotestQuestion[]
+  questions: PsychotestQuestion[],
+  mongoSession?: ClientSession
 ) {
   if (!questions.length) {
     return;
@@ -60,7 +62,8 @@ async function createQuestionInstances(
       index,
       category: question.category,
       questionType: question.questionType,
-    }))
+    })),
+    { session: mongoSession }
   );
 }
 
@@ -72,9 +75,10 @@ function isDuplicatePublicIdError(error: unknown) {
   return mongoError.code === 11000 && Boolean(mongoError.keyPattern?.publicId);
 }
 
-async function createSessionWithRetry(payload: SessionCreatePayload) {
+async function createSessionWithRetry(payload: SessionCreatePayload, mongoSession?: ClientSession) {
   try {
-    return await TestSessionModel.create(payload);
+    const docs = await TestSessionModel.create([payload], { session: mongoSession });
+    return docs[0]!;
   } catch (error) {
     if (!isDuplicatePublicIdError(error)) {
       throw error;
@@ -86,7 +90,8 @@ async function createSessionWithRetry(payload: SessionCreatePayload) {
       { $unset: { publicId: "" } }
     );
 
-    return TestSessionModel.create(payload);
+    const docs = await TestSessionModel.create([payload], { session: mongoSession });
+    return docs[0]!;
   }
 }
 
@@ -115,21 +120,51 @@ export async function POST(req: NextRequest) {
       count,
     });
 
-    const session = await createSessionWithRetry({
-      userId: user.id,
-      userType,
-      category,
-      difficulty,
-      questionCount: questions.length,
-      customDurationSeconds: customDurationSeconds ?? null,
-      questionsJson: questions,
-      startedAt: new Date(),
-    });
+    const persistSession = async (mongoSession?: ClientSession) => {
+      const sessionDoc = await createSessionWithRetry(
+        {
+          userId: user.id,
+          userType,
+          category,
+          difficulty,
+          questionCount: questions.length,
+          customDurationSeconds: customDurationSeconds ?? null,
+          questionsJson: questions,
+          startedAt: new Date(),
+        },
+        mongoSession
+      );
+      await createQuestionInstances(sessionDoc.id, questions, mongoSession);
+      return sessionDoc;
+    };
 
-    await createQuestionInstances(session.id, questions);
+    let createdSession: Awaited<ReturnType<typeof persistSession>>;
+
+    try {
+      const mongoSession = await mongoose.startSession();
+      try {
+        await mongoSession.withTransaction(async () => {
+          createdSession = await persistSession(mongoSession);
+        });
+      } finally {
+        await mongoSession.endSession();
+      }
+    } catch (transactionError) {
+      if (
+        transactionError &&
+        typeof transactionError === "object" &&
+        "code" in transactionError &&
+        (transactionError as { code?: number }).code === 20
+      ) {
+        console.warn("Transactions unavailable, falling back to non-transactional save.");
+        createdSession = await persistSession();
+      } else {
+        throw transactionError;
+      }
+    }
 
     return NextResponse.json({
-      sessionId: session.id,
+      sessionId: createdSession.id,
       questions,
     });
   } catch (error) {

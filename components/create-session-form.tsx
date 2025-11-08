@@ -65,9 +65,16 @@ function formatSeconds(seconds: number) {
 type SessionSnapshot = {
   id: string;
   startedAt: string;
+  questionCount: number;
+  userType: string;
+  category: string;
+  difficulty: string;
 };
 
-async function recoverCreatedSession(attemptStartedAt: number): Promise<SessionSnapshot | null> {
+async function recoverCreatedSession(
+  attemptStartedAt: number,
+  criteria: { count: number; userType: string; category: string; difficulty: string }
+): Promise<SessionSnapshot | null> {
   try {
     const response = await fetch(`${API_BASE}/test-sessions`, {
       method: "GET",
@@ -82,10 +89,18 @@ async function recoverCreatedSession(attemptStartedAt: number): Promise<SessionS
     if (!sessions.length) {
       return null;
     }
-    const threshold = attemptStartedAt - 2000; // tolerate small clock drift
+    const toleranceMs = 5 * 60 * 1000; // 5 minutes
     const candidate = sessions.find((session) => {
       const startedMs = new Date(session.startedAt).getTime();
-      return Number.isFinite(startedMs) && startedMs >= threshold;
+      if (!Number.isFinite(startedMs)) return false;
+      const delta = Math.abs(startedMs - attemptStartedAt);
+      return (
+        delta <= toleranceMs &&
+        session.questionCount === criteria.count &&
+        session.userType === criteria.userType &&
+        session.category === criteria.category &&
+        session.difficulty === criteria.difficulty
+      );
     });
     return candidate ?? null;
   } catch {
@@ -129,6 +144,7 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
     setError(null);
     setLoading(true);
     const attemptStartedAt = Date.now();
+    const recoveryCriteria = { count, userType, category, difficulty };
 
     try {
       const payload: Record<string, unknown> = {
@@ -150,7 +166,7 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
 
       if (!response.ok) {
         const result = await response.json().catch(() => null);
-        const recovered = await recoverCreatedSession(attemptStartedAt);
+        const recovered = await recoverCreatedSession(attemptStartedAt, recoveryCriteria);
         if (recovered) {
           if (typeof window !== "undefined") {
             window.alert("Sesi sudah siap. Membuka sesi tersebut ya.");
@@ -164,7 +180,7 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
       const json = await response.json();
       router.push(`/test/${json.sessionId}`);
     } catch (err) {
-      const recovered = await recoverCreatedSession(attemptStartedAt);
+      const recovered = await recoverCreatedSession(attemptStartedAt, recoveryCriteria);
       if (recovered) {
         if (typeof window !== "undefined") {
           window.alert("Sesi sudah siap. Membuka sesi tersebut ya.");

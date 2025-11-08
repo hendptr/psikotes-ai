@@ -26,6 +26,12 @@ const DEFAULT_CHUNK_SIZE = Math.max(
   1,
   Number.isFinite(chunkSizeNumber) && chunkSizeNumber > 0 ? chunkSizeNumber : 10
 );
+const MAX_CHUNK_ATTEMPTS = Math.max(
+  1,
+  Number(
+    process.env.GEMINI_CHUNK_ATTEMPTS?.trim() ?? 3
+  )
+);
 
 const CATEGORY_INSTRUCTIONS: Record<string, string> = {
   perbandingan_senilai_berbalik: `
@@ -131,25 +137,7 @@ async function requestQuestionsWithFallback(
 
         const response = await model.generateContent(buildPrompt(params));
         const text = response.response.text();
-        if (!text?.trim()) {
-          throw new Error(`[${chunkLabel}] Model ${modelName} mengembalikan respon kosong.`);
-        }
-
-        let parsed: unknown;
-        try {
-          parsed = JSON.parse(text);
-        } catch (parseError) {
-          console.error(
-            `[Gemini][${chunkLabel}] JSON.parse gagal untuk model ${modelName}. Cuplikan:`,
-            text.slice(0, 2000)
-          );
-          throw new Error(`[${chunkLabel}] Respon AI tidak valid (JSON gagal di-parse).`);
-        }
-
-        const questions = questionArraySchema.parse(parsed);
-        if (!questions.length) {
-          throw new Error(`[${chunkLabel}] Respon AI tidak berisi soal.`);
-        }
+        const questions = normalizeQuestionsFromText(text, chunkLabel, modelName);
 
         return questions.slice(0, params.count).map((item) => ({
           ...item,
@@ -196,14 +184,73 @@ export async function generatePsychotestQuestions(
       count: batchSize,
     };
 
-    const chunk = await requestQuestionsWithFallback(
-      chunkParams,
-      apiKeys,
-      modelCandidates,
-      chunkLabel
-    );
+    let chunk: PsychotestQuestion[] | null = null;
+    let attempts = 0;
+    while (!chunk && attempts < MAX_CHUNK_ATTEMPTS) {
+      attempts += 1;
+      try {
+        chunk = await requestQuestionsWithFallback(
+          chunkParams,
+          apiKeys,
+          modelCandidates,
+          `${chunkLabel}-try${attempts}`
+        );
+      } catch (error) {
+        if (attempts >= MAX_CHUNK_ATTEMPTS) {
+          throw error;
+        }
+        console.warn(`[Gemini][${chunkLabel}] percobaan ${attempts} gagal:`, error);
+        await new Promise((resolve) =>
+          setTimeout(resolve, 500 * attempts)
+        );
+      }
+    }
+
+    if (!chunk) {
+      throw new GeminiUnavailableError(`[${chunkLabel}] tidak bisa mendapatkan soal.`, null);
+    }
+
     results.push(...chunk);
   }
 
   return results.slice(0, params.count);
+}
+
+function normalizeQuestionsFromText(
+  text: string | undefined,
+  chunkLabel: string,
+  modelName: string
+) {
+  if (!text?.trim()) {
+    throw new Error(`[${chunkLabel}] Model ${modelName} mengembalikan respon kosong.`);
+  }
+
+  const trimmed = text.trim();
+  let parsedSource = trimmed;
+
+  // attempt to extract JSON array between first '[' and last ']'
+  if (!(trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+    const firstBracket = trimmed.indexOf("[");
+    const lastBracket = trimmed.lastIndexOf("]");
+    if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+      parsedSource = trimmed.slice(firstBracket, lastBracket + 1);
+    }
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(parsedSource);
+  } catch (parseError) {
+    console.error(
+      `[Gemini][${chunkLabel}] JSON.parse gagal untuk model ${modelName}. Cuplikan:`,
+      trimmed.slice(0, 2000)
+    );
+    throw new Error(`[${chunkLabel}] Respon AI tidak valid (JSON gagal di-parse).`);
+  }
+
+  const questions = questionArraySchema.parse(parsed);
+  if (!questions.length) {
+    throw new Error(`[${chunkLabel}] Respon AI tidak berisi soal.`);
+  }
+  return questions;
 }
