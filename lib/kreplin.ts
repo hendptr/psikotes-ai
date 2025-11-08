@@ -51,3 +51,12 @@ export async function getKreplinResult(userId: string, resultId: string) {
   }).lean<KreplinResultDocument>();
   return result;
 }
+
+export async function deleteKreplinResult(userId: string, resultId: string) {
+  await connectMongo();
+  const deletion = await KreplinResultModel.deleteOne({
+    _id: resultId,
+    userId,
+  });
+  return deletion.deletedCount ?? 0;
+}

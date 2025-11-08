@@ -31,6 +31,8 @@ export default function KreplinResultsPage() {
   const [history, setHistory] = useState<KreplinResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -89,7 +91,7 @@ export default function KreplinResultsPage() {
       value: item.correct,
     })) ?? [];
 
-  const speedData: GraphDatum[] =
+const speedData: GraphDatum[] =
     result?.speedTimeline?.map((item) => ({
       label: `Menit ${item.index + 1}`,
       value: item.correct,
@@ -112,6 +114,53 @@ export default function KreplinResultsPage() {
   if (loading) {
     return <div className="flex h-screen items-center justify-center">Memuat...</div>;
   }
+
+  const handleDelete = async (id: string) => {
+    if (id === "local") {
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem("kreplinFallbackResult");
+      }
+      setResult(null);
+      setHistory((prev) => prev.filter((item) => item.id !== id));
+      router.replace("/kreplin/results");
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      const confirmed = window.confirm("Hapus hasil ini dari riwayat?");
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    setDeletingId(id);
+    setActionError(null);
+    try {
+      const response = await fetch(`/api/kreplin-results/${id}`, { method: "DELETE" });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error ?? "Gagal menghapus hasil.");
+      }
+
+      setHistory((prev) => {
+        const updated = prev.filter((item) => item.id !== id);
+        if (result?.id === id) {
+          const nextResult = updated[0] ?? null;
+          setResult(nextResult);
+          if (nextResult) {
+            router.replace(`/kreplin/results?resultId=${nextResult.id}`);
+          } else {
+            router.replace("/kreplin/results");
+          }
+        }
+        return updated;
+      });
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Gagal menghapus hasil.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (error) {
     return (
@@ -141,13 +190,25 @@ export default function KreplinResultsPage() {
               </h1>
               <p className="text-sm text-slate-500">{formatDate(result.createdAt)}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => router.push("/kreplin")}
-              className="rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
-            >
-              Mulai sesi baru
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => router.push("/kreplin")}
+                className="rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+              >
+                Mulai sesi baru
+              </button>
+              {result.id !== "local" && (
+                <button
+                  type="button"
+                  onClick={() => handleDelete(result.id)}
+                  className="rounded-full border border-rose-200 px-5 py-2 text-sm font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 disabled:opacity-60"
+                  disabled={deletingId === result.id}
+                >
+                  {deletingId === result.id ? "Menghapus..." : "Hapus hasil ini"}
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-4">
@@ -207,6 +268,11 @@ export default function KreplinResultsPage() {
       )}
 
       <section className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+        {actionError && (
+          <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+            {actionError}
+          </p>
+        )}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Riwayat</p>
@@ -238,6 +304,7 @@ export default function KreplinResultsPage() {
                     <th className="py-3 pr-4">Durasi</th>
                     <th className="py-3 pr-4">Akurasi</th>
                     <th className="py-3 pr-4">Jawaban</th>
+                    <th className="py-3 pr-4 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -255,6 +322,19 @@ export default function KreplinResultsPage() {
                       </td>
                       <td className="py-3 pr-4">
                         {item.totalCorrect}/{item.totalAnswered}
+                      </td>
+                      <td className="py-3 pr-4 text-right">
+                        <button
+                          type="button"
+                          className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-rose-300 hover:text-rose-600 disabled:opacity-60"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleDelete(item.id);
+                          }}
+                          disabled={deletingId === item.id}
+                        >
+                          {deletingId === item.id ? "..." : "Hapus"}
+                        </button>
                       </td>
                     </tr>
                   ))}

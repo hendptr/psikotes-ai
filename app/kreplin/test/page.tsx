@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, Suspense } from "react";
+import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Keyboard from "@/components/kreplin/keyboard";
 
@@ -82,6 +82,7 @@ function TesKoran() {
   const [showSectionModal, setShowSectionModal] = useState(false);
   const [manualBuffer, setManualBuffer] = useState("");
   const [saving, setSaving] = useState(false);
+  const hasEndedRef = useRef(false);
 
   useEffect(() => {
     let timerId: NodeJS.Timeout | undefined;
@@ -139,11 +140,14 @@ function TesKoran() {
   const startTest = () => {
     setIsTestRunning(true);
     setStartTime(Date.now());
+    setSaving(false);
+    hasEndedRef.current = false;
     resetNumbersForNewSection();
   };
 
   const endTest = async () => {
-    if (saving) return;
+    if (saving || hasEndedRef.current) return;
+    hasEndedRef.current = true;
     setIsTestRunning(false);
     setSaving(true);
 
