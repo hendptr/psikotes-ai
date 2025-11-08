@@ -41,7 +41,7 @@ export default async function DashboardPage() {
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
         <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Dashboard pribadi</p>
         <h1 className="mt-2 text-3xl font-semibold text-slate-900">
-          Halo, {user.name ?? user.email}! Ini progres latimu.
+          Halo, {user.name ?? user.email}! Ini progres latihanmu.
         </h1>
         <p className="mt-3 text-sm text-slate-600">
           Terus lanjutkan latihanmu. Kami rekap semua skor, waktu, dan akurasi supaya kamu tinggal

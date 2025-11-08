@@ -63,4 +63,21 @@
 //   explanation: string;
 // }
 
+// KreplinResults collection
+// {
+//   _id: string;
+//   userId: string (ref -> users._id);
+//   mode: "manual" | "auto" | "tryout";
+//   durationSeconds: number;
+//   totalSections: number | null;
+//   totalAnswered: number;
+//   totalCorrect: number;
+//   totalIncorrect: number;
+//   accuracy: number; // percentage
+//   perSectionStats: [{ index: number; correct: number; total: number }];
+//   speedTimeline: [{ index: number; correct: number; total: number }];
+//   createdAt: ISODate;
+//   updatedAt: ISODate;
+// }
+
 

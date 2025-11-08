@@ -11,6 +11,7 @@ const navItems = [
   { href: "/public-sessions", label: "Soal Soal" },
   { href: "/sessions", label: "Arsip Sesi" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/kreplin", label: "Tes Koran" },
 ];
 
 export default function Navbar({ user }: NavbarProps) {
@@ -62,4 +63,3 @@ export default function Navbar({ user }: NavbarProps) {
     </header>
   );
 }
-

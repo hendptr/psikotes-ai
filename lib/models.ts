@@ -223,6 +223,87 @@ const answerSchema = new Schema(
 answerSchema.index({ sessionId: 1, questionIndex: 1 }, { unique: true });
 answerSchema.index({ userId: 1, sessionId: 1 });
 
+const kreplinSectionSchema = new Schema(
+  {
+    index: { type: Number, required: true },
+    correct: { type: Number, required: true, min: 0 },
+    total: { type: Number, required: true, min: 0 },
+  },
+  { _id: false }
+);
+
+const kreplinSpeedBucketSchema = new Schema(
+  {
+    index: { type: Number, required: true },
+    correct: { type: Number, required: true, min: 0 },
+    total: { type: Number, required: true, min: 0 },
+  },
+  { _id: false }
+);
+
+const kreplinResultSchema = new Schema(
+  {
+    _id: {
+      type: String,
+      default: () => randomUUID(),
+    },
+    userId: {
+      type: String,
+      required: true,
+      index: true,
+      ref: "User",
+    },
+    mode: {
+      type: String,
+      enum: ["manual", "auto", "tryout"],
+      required: true,
+    },
+    durationSeconds: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    totalSections: {
+      type: Number,
+      default: null,
+    },
+    totalAnswered: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    totalCorrect: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    totalIncorrect: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    accuracy: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    perSectionStats: {
+      type: [kreplinSectionSchema],
+      default: [],
+    },
+    speedTimeline: {
+      type: [kreplinSpeedBucketSchema],
+      default: [],
+    },
+  },
+  {
+    collection: "kreplinResults",
+    timestamps: true,
+  }
+);
+
+kreplinResultSchema.index({ userId: 1, createdAt: -1 });
+
 const toJsonTransform = {
   virtuals: true,
   versionKey: false,
@@ -239,6 +320,7 @@ userSchema.set("toJSON", toJsonTransform);
 testSessionSchema.set("toJSON", toJsonTransform);
 questionInstanceSchema.set("toJSON", toJsonTransform);
 answerSchema.set("toJSON", toJsonTransform);
+kreplinResultSchema.set("toJSON", toJsonTransform);
 
 export const UserModel =
   models.User ?? model("User", userSchema);
@@ -252,9 +334,13 @@ export const QuestionInstanceModel =
 export const AnswerModel =
   models.Answer ?? model("Answer", answerSchema);
 
+export const KreplinResultModel =
+  models.KreplinResult ?? model("KreplinResult", kreplinResultSchema);
+
 export type QuestionOption = InferSchemaType<typeof optionsSchema>;
 export type PsychotestQuestion = InferSchemaType<typeof questionSchema>;
 export type UserDocument = InferSchemaType<typeof userSchema> & { id: string };
 export type TestSessionDocument = InferSchemaType<typeof testSessionSchema> & { id: string };
 export type QuestionInstanceDocument = InferSchemaType<typeof questionInstanceSchema> & { id: string };
 export type AnswerDocument = InferSchemaType<typeof answerSchema> & { id: string };
+export type KreplinResultDocument = InferSchemaType<typeof kreplinResultSchema> & { id: string };
