@@ -1,0 +1,2 @@
+1. Hapus sesi
+2. Tambahkan custom waktu timer setting, 

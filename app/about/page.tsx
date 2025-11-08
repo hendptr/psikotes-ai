@@ -1,10 +1,4 @@
-"use client";
-
-import { useState } from "react";
-
 export default function AboutPage() {
-  const [message, setMessage] = useState("");
-
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <section className="rounded-3xl bg-white px-6 py-8 shadow-sm">

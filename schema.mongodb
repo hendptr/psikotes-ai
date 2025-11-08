@@ -1,0 +1,66 @@
+﻿// MongoDB schema definition for Winnie's Psikotes Lab.
+// Use with Prisma or Mongoose migrations as a reference when provisioning the database.
+//
+// Users collection
+// {
+//   _id: string (cuid/randomUUID)
+//   email: string (unique, lower-cased)
+//   name: string | null
+//   passwordHash: string (bcrypt hash)
+//   createdAt: ISODate
+// }
+//
+// TestSessions collection
+// {
+//   _id: string
+//   userId: string (ref -> users._id)
+//   userType: "santai" | "serius" | "simulasi"
+//   category: "mixed" | "padanan_kata" | "sinonim_antonim" | "hafalan_kata" | "deret_matematika" | "perbandingan_senilai_berbalik" | string
+//   difficulty: "mudah" | "sedang" | "sulit"
+//   questionCount: number
+//   startedAt: ISODate
+//   completedAt: ISODate | null
+//   questionsJson: Question[]
+//   score: number | null
+//   createdAt: ISODate
+//   updatedAt: ISODate
+// }
+//
+// QuestionInstances collection
+// {
+//   _id: string
+//   sessionId: string (ref -> testSessions._id)
+//   index: number
+//   category: string
+//   questionType: string
+//   createdAt: ISODate
+//   updatedAt: ISODate
+// }
+//
+// Answers collection
+// {
+//   _id: string
+//   sessionId: string (ref -> testSessions._id)
+//   questionId: string | null (ref -> questionInstances._id)
+//   questionIndex: number
+//   selectedLabel: string
+//   correctLabel: string
+//   isCorrect: boolean
+//   timeSpentMs: number
+//   answeredAt: ISODate
+//   createdAt: ISODate
+//   updatedAt: ISODate
+// }
+//
+// Question JSON shape (stored in questionsJson)
+// {
+//   category: string;
+//   difficulty: string;
+//   questionType: string;
+//   questionText: string;
+//   options: [{ label: string; text: string }];
+//   correctOptionLabel: string;
+//   explanation: string;
+// }
+
+

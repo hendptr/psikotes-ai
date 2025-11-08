@@ -1,7 +1,8 @@
-import "./globals.css";
+﻿import "./globals.css";
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import LayoutShell from "@/components/layout-shell";
+import Navbar from "@/components/navbar";
+import { getCurrentUserFromCookies } from "@/lib/auth";
 
 const fontSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -10,26 +11,36 @@ const fontSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "I LOVEE UUU WINNNIEEE",
-  description: "Kelola sesi latihan psikotes modern dengan antarmuka yang bersih dan responsif.",
+  title: "Winniee Cantikkkkk!!!",
+  description:
+    "Tsuki ga kirei desu ne!",
 };
 
-const NAV_ITEMS = [
-  { label: "Dashboard", href: "/" },
-  { label: "Arsip Soal", href: "/sessions" },
-  { label: "About", href: "/about" },
-];
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getCurrentUserFromCookies();
+
   return (
     <html lang="id">
       <body className={`${fontSans.variable} bg-slate-100 text-slate-900 antialiased`}>
-        <LayoutShell navItems={NAV_ITEMS}>{children}</LayoutShell>
+        <div className="flex min-h-screen flex-col">
+          <Navbar user={user} />
+          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
+            {children}
+          </main>
+          <footer className="border-t border-slate-200 bg-white/90">
+            <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 text-xs text-slate-500 sm:px-6 lg:px-8">
+              <p>I love uu Winnie!</p>
+              <span>Winnie Cantik</span>
+            </div>
+          </footer>
+        </div>
       </body>
     </html>
   );
 }
+
+
