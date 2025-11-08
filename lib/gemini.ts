@@ -80,46 +80,61 @@ ${categoryHint ? `\nFokus kategori:\n${categoryHint}\n` : ""}
 `;
 }
 
+function resolveApiKeys(): string[] {
+  const raw =
+    process.env.GEMINI_API_KEYS ??
+    process.env.GEMINI_API_KEY ??
+    "";
+  return raw
+    .split(/[,|\n]/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
 export async function generatePsychotestQuestions(
   params: GenerationParams
 ): Promise<PsychotestQuestion[]> {
-  const { GEMINI_API_KEY } = process.env;
-  if (!GEMINI_API_KEY) {
+  const apiKeys = resolveApiKeys();
+  if (!apiKeys.length) {
     throw new GeminiUnavailableError("Gemini API key is not configured.");
   }
 
   const modelCandidates = ["models/gemini-2.5-pro"];
   let lastError: unknown = null;
 
-  for (const modelName of modelCandidates) {
-    try {
-      const client = new GoogleGenerativeAI(GEMINI_API_KEY);
-      const model = client.getGenerativeModel({
-        model: modelName,
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.7,
-        },
-      });
+  for (const apiKey of apiKeys) {
+    for (const modelName of modelCandidates) {
+      try {
+        const client = new GoogleGenerativeAI(apiKey);
+        const model = client.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            responseMimeType: "application/json",
+            temperature: 0.7,
+          },
+        });
 
-      const response = await model.generateContent(buildPrompt(params));
-      const text = response.response.text();
-      const parsed = questionArraySchema.parse(JSON.parse(text));
-      if (parsed.length) {
-        return parsed
-          .slice(0, params.count)
-          .map((item) => ({
-            ...item,
-            options: item.options.map<QuestionOption>((option) => ({
-              label: option.label,
-              text: option.text,
-            })),
-          })) as PsychotestQuestion[];
+        const response = await model.generateContent(buildPrompt(params));
+        const text = response.response.text();
+        const parsed = questionArraySchema.parse(JSON.parse(text));
+        if (parsed.length) {
+          return parsed
+            .slice(0, params.count)
+            .map((item) => ({
+              ...item,
+              options: item.options.map<QuestionOption>((option) => ({
+                label: option.label,
+                text: option.text,
+              })),
+            })) as PsychotestQuestion[];
+        }
+      } catch (error) {
+        lastError = error;
+        console.error(
+          `Gemini generation error for key ****${apiKey.slice(-4)} model ${modelName}, trying next key/model:`,
+          error
+        );
       }
-    } catch (error) {
-      lastError = error;
-      console.error(`Gemini generation error for ${modelName}, giving up:`, error);
-      break;
     }
   }
 
