@@ -40,6 +40,20 @@ export async function POST(req: NextRequest) {
 
     const token = signJwt({ userId: user._id });
     await setAuthCookie(token);
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      req.headers.get("x-real-ip") ??
+      "unknown";
+    const ua = req.headers.get("user-agent") ?? "unknown";
+    console.log(
+      JSON.stringify({
+        ts: new Date().toISOString(),
+        event: "login-success",
+        userId: user._id,
+        ip,
+        ua,
+      })
+    );
 
     return NextResponse.json({
       user: {

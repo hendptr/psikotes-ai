@@ -1,0 +1,47 @@
+{
+  "enabled": true,
+  "baseUrl": "http://localhost:3000",
+  "email": "your-email@example.com",
+  "password": "your-password",
+  "jobs": [
+    {
+      "label": "Tryout 30 Soal",
+      "enabled": true,
+      "intervalMinutes": 60,
+      "runOnStart": true,
+      "payload": {
+        "userType": "simulasi",
+        "category": "mixed",
+        "difficulty": "sulit",
+        "count": 30,
+        "customDurationSeconds": 90
+      }
+    },
+    {
+      "label": "Deret Matematika 30 Soal",
+      "enabled": true,
+      "intervalMinutes": 60,
+      "runOnStart": true,
+      "payload": {
+        "userType": "simulasi",
+        "category": "deret_matematika",
+        "difficulty": "sulit",
+        "count": 30,
+        "customDurationSeconds": 90
+      }
+    },
+    {
+      "label": "Perbandingan Senilai & Berbalik Nilai 30 Soal",
+      "enabled": true,
+      "intervalMinutes": 60,
+      "runOnStart": true,
+      "payload": {
+        "userType": "simulasi",
+        "category": "perbandingan_senilai_berbalik",
+        "difficulty": "sulit",
+        "count": 30,
+        "customDurationSeconds": 90
+      }
+    }
+  ]
+}

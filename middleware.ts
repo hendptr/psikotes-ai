@@ -21,6 +21,22 @@ export function middleware(request: NextRequest) {
   ) {
     return NextResponse.next();
   }
+  const forwarded = request.headers.get("x-forwarded-for");
+  const ip =
+    forwarded?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "unknown";
+  const ua = request.headers.get("user-agent") ?? "unknown";
+
+  console.log(
+    JSON.stringify({
+      ts: new Date().toISOString(),
+      path: pathname,
+      method: request.method,
+      ip,
+      ua,
+    })
+  );
 
   if (isPublicRoute(pathname)) {
     return NextResponse.next();
@@ -31,6 +47,16 @@ export function middleware(request: NextRequest) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.search = "";
+    console.log(
+      JSON.stringify({
+        ts: new Date().toISOString(),
+        path: pathname,
+        method: request.method,
+        ip,
+        ua,
+        event: "redirect-login",
+      })
+    );
     return NextResponse.redirect(loginUrl);
   }
 
