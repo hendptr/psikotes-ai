@@ -9,15 +9,12 @@ type Question = {
 };
 
 function generateQuestion(): Question {
-  const a = Math.floor(Math.random() * 90) + 10;
-  const b = Math.floor(Math.random() * 90) + 10;
-  const operations = ["+", "-", "×"];
-  const op = operations[Math.floor(Math.random() * operations.length)];
+  const a = Math.floor(Math.random() * 40) + 10;
+  const b = Math.floor(Math.random() * 15) + 1;
+  const op = Math.random() < 0.5 ? "+" : "-";
   let answer = a + b;
   if (op === "-") {
     answer = a - b;
-  } else if (op === "×") {
-    answer = a * b;
   }
   const expression = `${a} ${op} ${b}`;
   const options = new Set<number>([answer]);

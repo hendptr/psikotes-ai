@@ -38,20 +38,6 @@ export default function MemoryGridRotation() {
     return () => window.clearTimeout(timer);
   }, [pattern, showPattern]);
 
-  const rotatedPattern = useMemo(() => {
-    const rotated = [...pattern];
-    for (let row = 0; row < GRID_SIZE; row += 1) {
-      for (let col = 0; col < GRID_SIZE; col += 1) {
-        const srcIndex = row * GRID_SIZE + col;
-        const newRow = col;
-        const newCol = GRID_SIZE - 1 - row;
-        const destIndex = newRow * GRID_SIZE + newCol;
-        rotated[destIndex] = { ...pattern[srcIndex] };
-      }
-    }
-    return rotated;
-  }, [pattern]);
-
   function resetRound(nextRound: number) {
     setRound(nextRound);
     setPattern(generatePattern(nextRound));
@@ -75,7 +61,7 @@ export default function MemoryGridRotation() {
 
   function checkAnswer() {
     if (showPattern) return;
-    const activeIndices = rotatedPattern
+    const activeIndices = pattern
       .filter((cell) => cell.active)
       .map((cell) => cell.id);
     const selectedIndices = Array.from(selections);
@@ -132,10 +118,10 @@ export default function MemoryGridRotation() {
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Langkah 2</p>
           <p className="text-sm text-slate-600">
-            Setelah diputar 90°, pilih sel yang tadi menyala.
+            Setelah grid disembunyikan, pilih sel yang tadi menyala dengan urutan yang sama.
           </p>
           <GridView
-            cells={rotatedPattern}
+            cells={pattern}
             highlight={false}
             disabled={showPattern}
             selections={selections}
