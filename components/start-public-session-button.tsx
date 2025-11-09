@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { API_BASE } from "@/lib/config";
+import { useToast } from "@/components/toast-provider";
 
 type StartPublicSessionButtonProps = {
   publicId: string;
@@ -15,44 +16,45 @@ export default function StartPublicSessionButton({
 }: StartPublicSessionButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   async function handleStart() {
     setLoading(true);
     try {
-      const response = await fetch(API_BASE + '/public-sessions/' + publicId + '/start', {
-        method: 'POST',
+      const response = await fetch(API_BASE + "/public-sessions/" + publicId + "/start", {
+        method: "POST",
       });
       const payload = await response.json().catch(() => null);
       if (!response.ok || !payload?.sessionId) {
-        throw new Error(payload?.error ?? 'Tidak dapat memulai sesi.');
+        throw new Error(payload?.error ?? "Tidak dapat memulai sesi.");
       }
-      router.push('/test/' + payload.sessionId);
+      router.push("/test/" + payload.sessionId);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Gagal memulai sesi.';
-      window.alert(message);
+      const message = error instanceof Error ? error.message : "Gagal memulai sesi.";
+      showToast(message, { variant: "error" });
     } finally {
       setLoading(false);
     }
   }
 
   const classes = [
-    'inline-flex',
-    'items-center',
-    'justify-center',
-    'rounded-full',
-    'bg-slate-900',
-    'px-4',
-    'py-2',
-    'text-sm',
-    'font-semibold',
-    'text-white',
-    'transition',
-    'hover:bg-slate-800',
-    'disabled:opacity-60',
-    'focus-visible:outline',
-    'focus-visible:outline-2',
-    'focus-visible:outline-offset-2',
-    'focus-visible:outline-slate-400',
+    "inline-flex",
+    "items-center",
+    "justify-center",
+    "rounded-full",
+    "bg-slate-900",
+    "px-4",
+    "py-2",
+    "text-sm",
+    "font-semibold",
+    "text-white",
+    "transition",
+    "hover:bg-slate-800",
+    "disabled:opacity-60",
+    "focus-visible:outline",
+    "focus-visible:outline-2",
+    "focus-visible:outline-offset-2",
+    "focus-visible:outline-slate-400",
   ];
 
   if (className) {
@@ -66,7 +68,7 @@ export default function StartPublicSessionButton({
       disabled={loading}
       className={classes.join(' ')}
     >
-      {loading ? 'Menyiapkan...' : 'Mulai sesi ini'}
+      {loading ? "Menyiapkan..." : "Mulai sesi ini"}
     </button>
   );
 }

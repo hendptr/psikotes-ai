@@ -18,6 +18,9 @@ function serializeSession(session: SessionDetail) {
     customDurationSeconds: session.customDurationSeconds,
     questions: session.questions,
     answers: session.answers,
+    isDraft: session.isDraft,
+    draftQuestionIndex: session.draftQuestionIndex,
+    draftTimerSeconds: session.draftTimerSeconds,
   };
 }
 

@@ -59,6 +59,10 @@ export async function POST(
         $set: {
           completedAt: new Date(),
           score: accuracy,
+          isDraft: false,
+          draftSavedAt: null,
+          draftQuestionIndex: null,
+          draftTimerSeconds: null,
         },
       }
     );

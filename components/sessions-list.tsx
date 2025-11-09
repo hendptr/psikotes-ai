@@ -19,6 +19,9 @@ type SessionItem = {
   totalCorrect: number;
   isPublic: boolean;
   publicId: string | null;
+  isDraft: boolean;
+  draftSavedAt: string | null;
+  draftQuestionIndex: number | null;
 };
 
 type SessionsListProps = {
@@ -214,6 +217,12 @@ export default function SessionsList({ initialSessions }: SessionsListProps) {
                 session.customDurationSeconds ?? MODE_DEFAULT_SECONDS[session.userType] ?? null;
               const timerLabel = formatSeconds(timerSeconds);
               const timerBadge = session.customDurationSeconds ? "Timer custom" : "Timer standar";
+              const isDraft = session.isDraft && !session.completedAt;
+              const draftSavedLabel =
+                isDraft && session.draftSavedAt
+                  ? formatDateTime(session.draftSavedAt)
+                  : null;
+              const openLabel = isDraft ? "Lanjutkan draft" : "Buka sesi";
 
               return (
                 <article
@@ -240,6 +249,14 @@ export default function SessionsList({ initialSessions }: SessionsListProps) {
                         Publik
                       </span>
                     )}
+                    {isDraft && (
+                      <span className="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-700">
+                        Draft tersimpan
+                      </span>
+                    )}
+                    {draftSavedLabel && (
+                      <p className="text-xs text-slate-500">Disimpan: {draftSavedLabel}</p>
+                    )}
                   </div>
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
                     <span>ID sesi: {session.id}</span>
@@ -248,12 +265,12 @@ export default function SessionsList({ initialSessions }: SessionsListProps) {
                         href={`/test/${session.id}`}
                         className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
                       >
-                        Buka sesi
+                        {openLabel}
                       </Link>
                       <button
                         type="button"
                         onClick={() => handleRetake(session)}
-                        disabled={retakeId === session.id}
+                        disabled={retakeId === session.id || isDraft}
                         className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 font-semibold text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 disabled:opacity-60"
                       >
                         {retakeId === session.id ? "Mempersiapkan..." : "Retake"}

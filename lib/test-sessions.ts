@@ -42,6 +42,10 @@ export type SessionDetail = {
   score: number | null;
   isPublic: boolean;
   publicId: string | null;
+  isDraft: boolean;
+  draftSavedAt: Date | null;
+  draftQuestionIndex: number | null;
+  draftTimerSeconds: number | null;
   questions: PsychotestQuestion[];
   answers: AnswerSummary[];
 };
@@ -58,6 +62,9 @@ export type SessionListEntry = {
   score: number | null;
   isPublic: boolean;
   publicId: string | null;
+  isDraft: boolean;
+  draftSavedAt: Date | null;
+  draftQuestionIndex: number | null;
   totalAnswered: number;
   totalCorrect: number;
 };
@@ -98,6 +105,10 @@ export async function getSessionForUser(
     startedAt: Date;
     completedAt: Date | null;
     score: number | null;
+    isDraft: boolean;
+    draftSavedAt: Date | null;
+    draftQuestionIndex: number | null;
+    draftTimerSeconds: number | null;
     questionsJson: PsychotestQuestion[];
   }>();
 
@@ -121,6 +132,10 @@ export async function getSessionForUser(
     customDurationSeconds: session.customDurationSeconds ?? null,
     isPublic: session.isPublic ?? false,
     publicId: session.publicId ?? null,
+    isDraft: session.isDraft ?? false,
+    draftSavedAt: session.draftSavedAt ?? null,
+    draftQuestionIndex: session.draftQuestionIndex ?? null,
+    draftTimerSeconds: session.draftTimerSeconds ?? null,
     startedAt: session.startedAt,
     completedAt: session.completedAt ?? null,
     score: session.score ?? null,
@@ -149,6 +164,9 @@ export async function listSessionsForUser(userId: string): Promise<SessionListEn
           startedAt: Date;
           completedAt: Date | null;
           score: number | null;
+          isDraft: boolean;
+          draftSavedAt: Date | null;
+          draftQuestionIndex: number | null;
         }>
       >(),
     AnswerModel.aggregate<{
@@ -182,6 +200,9 @@ export async function listSessionsForUser(userId: string): Promise<SessionListEn
       customDurationSeconds: session.customDurationSeconds ?? null,
       isPublic: session.isPublic ?? false,
       publicId: session.publicId ?? null,
+      isDraft: session.isDraft ?? false,
+      draftSavedAt: session.draftSavedAt ?? null,
+      draftQuestionIndex: session.draftQuestionIndex ?? null,
       startedAt: session.startedAt,
       completedAt: session.completedAt ?? null,
       score: session.score ?? null,

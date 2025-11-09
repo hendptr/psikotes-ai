@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { API_BASE } from "@/lib/config";
+import { useToast } from "@/components/toast-provider";
 
 type CreateSessionFormProps = {
   isAuthenticated: boolean;
@@ -153,6 +154,7 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
     () => formatSeconds(useCustomTimer ? customSeconds : activeMode.defaultSeconds),
     [useCustomTimer, customSeconds, activeMode]
   );
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!useCustomTimer) {
@@ -196,9 +198,7 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
           criteria: recoveryCriteria,
         });
         if (recovered) {
-          if (typeof window !== "undefined") {
-            window.alert("Sesi sudah siap. Membuka sesi tersebut ya.");
-          }
+          showToast("Sesi sudah siap. Membuka sesi tersebut ya.", { variant: "success" });
           router.push(`/test/${recovered.id}`);
           return;
         }
@@ -213,18 +213,14 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
         criteria: recoveryCriteria,
       });
       if (recovered) {
-        if (typeof window !== "undefined") {
-          window.alert("Sesi sudah siap. Membuka sesi tersebut ya.");
-        }
+        showToast("Sesi sudah siap. Membuka sesi tersebut ya.", { variant: "success" });
         router.push(`/test/${recovered.id}`);
         return;
       }
 
       const message = err instanceof Error ? err.message : "Terjadi kesalahan.";
       setError(message);
-      if (typeof window !== "undefined") {
-        window.alert(message);
-      }
+      showToast(message, { variant: "error" });
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,9 @@
-﻿'use client';
+'use client';
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/config";
+import { useToast } from "@/components/toast-provider";
 import type { PsychotestQuestion } from "@/lib/models";
 import type { AnswerSummary } from "@/lib/test-sessions";
 
@@ -26,6 +27,9 @@ type SessionPayload = {
   score: number | null;
   questions: PsychotestQuestion[];
   answers: SerializableAnswer[];
+  isDraft: boolean;
+  draftQuestionIndex: number | null;
+  draftTimerSeconds: number | null;
 };
 
 type AnswerMap = Record<number, SerializableAnswer>;
@@ -80,12 +84,27 @@ function formatTimerCountdown(seconds: number | null) {
 
 export default function TestRunner({ session }: TestRunnerProps) {
   const router = useRouter();
+  const { showToast } = useToast();
   const timerSeconds =
     session.customDurationSeconds ?? DEFAULT_TIMER_PER_MODE[session.userType] ?? null;
   const timerLabel = formatSeconds(timerSeconds);
   const isCustomTimer = Boolean(session.customDurationSeconds);
 
-  const [currentIndex, setCurrentIndex] = useState(() => resolveInitialIndex(session));
+  const initialIndex =
+    session.isDraft && typeof session.draftQuestionIndex === "number"
+      ? Math.min(
+          Math.max(session.draftQuestionIndex, 0),
+          Math.max(session.questionCount - 1, 0)
+        )
+      : resolveInitialIndex(session);
+  const initialTimerValue =
+    session.isDraft && typeof session.draftTimerSeconds === "number"
+      ? session.draftTimerSeconds
+      : typeof timerSeconds === "number"
+      ? timerSeconds
+      : null;
+
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [answers, setAnswers] = useState<AnswerMap>(() =>
     session.answers.reduce<AnswerMap>((map, answer) => {
       map[answer.questionIndex] = answer;
@@ -93,15 +112,14 @@ export default function TestRunner({ session }: TestRunnerProps) {
     }, {})
   );
   const [questionStart, setQuestionStart] = useState(() => Date.now());
-  const [timerDeadline, setTimerDeadline] = useState<number | null>(() =>
-    typeof timerSeconds === "number" ? Date.now() + timerSeconds * 1000 : null
+  const [timerDeadline, setTimerDeadline] = useState<number | null>(
+    typeof initialTimerValue === "number" ? Date.now() + initialTimerValue * 1000 : null
   );
-  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(
-    typeof timerSeconds === "number" ? timerSeconds : null
-  );
+  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(initialTimerValue);
   const [pendingQuestions, setPendingQuestions] = useState<Record<number, true>>({});
   const [pendingSaves, setPendingSaves] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [savingDraft, setSavingDraft] = useState(false);
   const [completion, setCompletion] = useState<CompletionState>(() => {
     if (session.completedAt && typeof session.score === "number") {
       return {
@@ -120,6 +138,7 @@ export default function TestRunner({ session }: TestRunnerProps) {
   const isSessionActive = completion.status === "idle";
   const isComplete = completion.status === "completed";
   const showTimerCountdown = hasTimer && isSessionActive;
+  const initialTimerAppliedRef = useRef(true);
 
   function resetTimingForCurrentQuestion() {
     if (!isSessionActive) {
@@ -144,15 +163,43 @@ export default function TestRunner({ session }: TestRunnerProps) {
   }, [currentIndex, isSessionActive]);
 
   useEffect(() => {
-    if (!showTimerCountdown || typeof timerSeconds !== "number") {
+    if (!showTimerCountdown) {
       setTimerDeadline(null);
       setRemainingSeconds(null);
       return;
     }
-    const deadline = Date.now() + timerSeconds * 1000;
-    setTimerDeadline(deadline);
-    setRemainingSeconds(timerSeconds);
-  }, [currentIndex, showTimerCountdown, timerSeconds]);
+
+    let nextSeconds: number | null =
+      typeof timerSeconds === "number" ? timerSeconds : null;
+
+    if (
+      initialTimerAppliedRef.current &&
+      session.isDraft &&
+      typeof session.draftQuestionIndex === "number" &&
+      session.draftQuestionIndex === currentIndex &&
+      typeof session.draftTimerSeconds === "number"
+    ) {
+      nextSeconds = session.draftTimerSeconds;
+    }
+
+    initialTimerAppliedRef.current = false;
+
+    if (typeof nextSeconds === "number") {
+      const deadline = Date.now() + nextSeconds * 1000;
+      setTimerDeadline(deadline);
+      setRemainingSeconds(nextSeconds);
+    } else {
+      setTimerDeadline(null);
+      setRemainingSeconds(null);
+    }
+  }, [
+    currentIndex,
+    showTimerCountdown,
+    timerSeconds,
+    session.draftQuestionIndex,
+    session.draftTimerSeconds,
+    session.isDraft,
+  ]);
 
   useEffect(() => {
     if (!showTimerCountdown || timerDeadline == null) {
@@ -203,6 +250,49 @@ export default function TestRunner({ session }: TestRunnerProps) {
     }
   }, [completion.status, pendingSaves, session.sessionId]);
 
+  const saveDraft = useCallback(async () => {
+    if (savingDraft || isComplete) {
+      return;
+    }
+    setSavingDraft(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_BASE}/test-sessions/${session.sessionId}/draft`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionIndex: currentIndex,
+          remainingSeconds:
+            showTimerCountdown && typeof remainingSeconds === "number" ? remainingSeconds : null,
+        }),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error ?? "Gagal menyimpan draft.");
+      }
+      if (typeof window !== "undefined") {
+        showToast("Draft tersimpan. Kamu bisa lanjutkan melalui Arsip Sesi.", { variant: "success" });
+      }
+      router.push("/sessions");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Gagal menyimpan draft.";
+      setError(message);
+      if (typeof window !== "undefined") {
+        showToast(message, { variant: "error" });
+      }
+    } finally {
+      setSavingDraft(false);
+    }
+  }, [
+    currentIndex,
+    isComplete,
+    remainingSeconds,
+    router,
+    savingDraft,
+    session.sessionId,
+    showTimerCountdown,
+  ]);
+
   useEffect(() => {
     if (
       completion.status === "idle" &&
@@ -213,6 +303,18 @@ export default function TestRunner({ session }: TestRunnerProps) {
       void finalizeSession();
     }
   }, [completion.status, finalizeSession, pendingSaves, totalAnswered, totalQuestions]);
+
+  useEffect(() => {
+    if (!session.isDraft) {
+      return;
+    }
+    fetch(`${API_BASE}/test-sessions/${session.sessionId}/draft`, {
+      method: "DELETE",
+    }).catch((draftError) => {
+      console.error("Failed to clear draft flag:", draftError);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function submitAnswer(optionLabel: string) {
     if (isComplete || pendingQuestions[currentIndex]) {
@@ -320,7 +422,7 @@ export default function TestRunner({ session }: TestRunnerProps) {
       : 0;
   const timerCritical =
     showTimerCountdown && typeof remainingSeconds === "number" && remainingSeconds <= 10;
-  const finalizeDisabled = completion.status === "loading" || isComplete || pendingSaves > 0;
+  const finalizeDisabled = completion.status === "loading" || isComplete || pendingSaves > 0 || savingDraft;
   const finalizeLabel =
     completion.status === "loading"
       ? "Menghitung..."
@@ -475,6 +577,16 @@ export default function TestRunner({ session }: TestRunnerProps) {
               })}
             </div>
             <div className="flex flex-wrap gap-2">
+              {!isComplete && (
+                <button
+                  type="button"
+                  onClick={saveDraft}
+                  disabled={savingDraft}
+                  className="rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900 disabled:opacity-50"
+                >
+                  {savingDraft ? "Menyimpan draft..." : "Simpan draft & keluar"}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={finalizeSession}
@@ -546,5 +658,14 @@ function SummaryStat({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
 
 

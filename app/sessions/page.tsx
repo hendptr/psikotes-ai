@@ -26,6 +26,9 @@ export default async function SessionsPage() {
     totalCorrect: session.totalCorrect,
     isPublic: session.isPublic,
     publicId: session.publicId,
+    isDraft: session.isDraft,
+    draftSavedAt: session.draftSavedAt ? session.draftSavedAt.toISOString() : null,
+    draftQuestionIndex: session.draftQuestionIndex,
   }));
 
   return (

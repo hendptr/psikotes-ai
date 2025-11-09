@@ -87,6 +87,22 @@ const testSessionSchema = new Schema(
       type: Number,
       default: null,
     },
+    isDraft: {
+      type: Boolean,
+      default: false,
+    },
+    draftSavedAt: {
+      type: Date,
+      default: null,
+    },
+    draftQuestionIndex: {
+      type: Number,
+      default: null,
+    },
+    draftTimerSeconds: {
+      type: Number,
+      default: null,
+    },
     startedAt: {
       type: Date,
       default: () => new Date(),
