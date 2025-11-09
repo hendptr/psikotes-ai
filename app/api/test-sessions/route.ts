@@ -48,6 +48,23 @@ function clampCount(value: number) {
   return Math.min(30, Math.max(1, value));
 }
 
+function canUseTransactions() {
+  const connection = mongoose.connection as typeof mongoose.connection & {
+    client?: {
+      topology?: {
+        description?: {
+          type?: string;
+        };
+      };
+    };
+  };
+  const topologyType =
+    connection.client?.topology?.description?.type ??
+    (connection as { db?: { client?: { topology?: { description?: { type?: string } } } } })?.db
+      ?.client?.topology?.description?.type;
+  return typeof topologyType === "string" && topologyType !== "Single";
+}
+
 async function createQuestionInstances(
   sessionId: string,
   questions: PsychotestQuestion[],
@@ -138,29 +155,23 @@ export async function POST(req: NextRequest) {
       return sessionDoc;
     };
 
-    let createdSession: Awaited<ReturnType<typeof persistSession>>;
-
-    try {
+    let createdSession: Awaited<ReturnType<typeof persistSession>> | null = null;
+    const transactionsSupported = canUseTransactions();
+    if (transactionsSupported) {
       const mongoSession = await mongoose.startSession();
       try {
         await mongoSession.withTransaction(async () => {
           createdSession = await persistSession(mongoSession);
         });
+      } catch (transactionError) {
+        console.warn("Transaction failed; falling back to direct save.", transactionError);
       } finally {
         await mongoSession.endSession();
       }
-    } catch (transactionError) {
-      if (
-        transactionError &&
-        typeof transactionError === "object" &&
-        "code" in transactionError &&
-        (transactionError as { code?: number }).code === 20
-      ) {
-        console.warn("Transactions unavailable, falling back to non-transactional save.");
-        createdSession = await persistSession();
-      } else {
-        throw transactionError;
-      }
+    }
+
+    if (!createdSession) {
+      createdSession = await persistSession();
     }
 
     return NextResponse.json({

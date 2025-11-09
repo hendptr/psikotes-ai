@@ -71,6 +71,12 @@ type SessionSnapshot = {
   difficulty: string;
 };
 
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 async function recoverCreatedSession(
   attemptStartedAt: number,
   criteria: { count: number; userType: string; category: string; difficulty: string }
@@ -106,6 +112,25 @@ async function recoverCreatedSession(
   } catch {
     return null;
   }
+}
+
+async function waitForRecoveredSession(
+  params: {
+    attemptStartedAt: number;
+    criteria: { count: number; userType: string; category: string; difficulty: string };
+  },
+  timeoutMs = 180_000,
+  intervalMs = 4_000
+): Promise<SessionSnapshot | null> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const recovered = await recoverCreatedSession(params.attemptStartedAt, params.criteria);
+    if (recovered) {
+      return recovered;
+    }
+    await sleep(intervalMs);
+  }
+  return null;
 }
 
 export default function CreateSessionForm({ isAuthenticated }: CreateSessionFormProps) {
@@ -166,7 +191,10 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
 
       if (!response.ok) {
         const result = await response.json().catch(() => null);
-        const recovered = await recoverCreatedSession(attemptStartedAt, recoveryCriteria);
+        const recovered = await waitForRecoveredSession({
+          attemptStartedAt,
+          criteria: recoveryCriteria,
+        });
         if (recovered) {
           if (typeof window !== "undefined") {
             window.alert("Sesi sudah siap. Membuka sesi tersebut ya.");
@@ -180,7 +208,10 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
       const json = await response.json();
       router.push(`/test/${json.sessionId}`);
     } catch (err) {
-      const recovered = await recoverCreatedSession(attemptStartedAt, recoveryCriteria);
+      const recovered = await waitForRecoveredSession({
+        attemptStartedAt,
+        criteria: recoveryCriteria,
+      });
       if (recovered) {
         if (typeof window !== "undefined") {
           window.alert("Sesi sudah siap. Membuka sesi tersebut ya.");
