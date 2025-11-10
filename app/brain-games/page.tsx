@@ -1,5 +1,7 @@
 import SpeedArithmeticRush from "@/components/brain-games/speed-arithmetic-rush";
 import MemoryGridRotation from "@/components/brain-games/memory-grid-rotation";
+import SequenceEcho from "@/components/brain-games/sequence-echo";
+import ReverseRecall from "@/components/brain-games/reverse-recall";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +19,8 @@ export default function BrainGamesPage() {
 
       <SpeedArithmeticRush />
       <MemoryGridRotation />
+      <SequenceEcho />
+      <ReverseRecall />
     </div>
   );
 }
