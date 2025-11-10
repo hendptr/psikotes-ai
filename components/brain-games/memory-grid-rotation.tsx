@@ -78,36 +78,34 @@ export default function MemoryGridRotation() {
   }
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Brain Game</p>
-          <h2 className="text-2xl font-semibold text-slate-900">Memory Grid</h2>
-          <p className="text-sm text-slate-600">
-            Pola muncul sebentar. Setelah hilang, pilih kembali sel yang tadi menyala. Semakin tinggi
-            ronde, semakin banyak sel yang perlu diingat.
+          <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">Brain Game</p>
+          <h2 className="text-xl font-semibold text-slate-900">Memory Grid</h2>
+          <p className="text-xs text-slate-600">
+            Pola muncul sebentar lalu hilang. Ingat sel aktif dan pilih kembali.
           </p>
         </div>
         <button
           type="button"
           onClick={() => resetRound(1)}
-          className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+          className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
         >
           Ulang dari awal
         </button>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Ronde" value={`${round}`} />
-        <StatCard label="Skor" value={`${score}/${attempts || 1}`} />
-        <StatCard label="Sel aktif" value={pattern.filter((cell) => cell.active).length.toString()} />
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Chip label="Ronde" value={`${round}`} />
+        <Chip label="Skor" value={`${score}/${attempts || 1}`} />
+        <Chip label="Sel aktif" value={pattern.filter((cell) => cell.active).length.toString()} />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-4">
         <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Pola</p>
-        <p className="text-sm text-slate-600">
-          Hafalkan pola yang muncul (highlight biru). Saat grid berubah putih, pilih kembali sel yang
-          benar.
+        <p className="text-xs text-slate-600">
+          Hafalkan pola biru. Setelah hilang, pilih sel yang sama.
         </p>
         <GridView
           cells={pattern}
@@ -118,16 +116,16 @@ export default function MemoryGridRotation() {
         />
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={checkAnswer}
           disabled={showPattern || selections.size === 0 || Boolean(feedback)}
-          className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+          className="rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
         >
           Cek Jawaban
         </button>
-        {feedback && <p className="text-sm font-semibold text-slate-700">{feedback}</p>}
+        {feedback && <p className="text-xs font-semibold text-slate-700">{feedback}</p>}
       </div>
     </section>
   );
@@ -170,11 +168,11 @@ function GridView({
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function Chip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center shadow-sm">
-      <p className="text-[11px] uppercase tracking-[0.3em] text-slate-500">{label}</p>
-      <p className="mt-2 text-xl font-semibold text-slate-900">{value}</p>
-    </div>
+    <span className="inline-flex flex-col rounded-2xl border border-slate-200 bg-white px-3 py-2 text-center text-xs font-semibold text-slate-600 shadow-sm">
+      <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">{label}</span>
+      <span className="text-base text-slate-900">{value}</span>
+    </span>
   );
 }

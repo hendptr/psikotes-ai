@@ -88,13 +88,13 @@ export default function SpeedArithmeticRush() {
   }, [score, attempted]);
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Brain Game</p>
-          <h2 className="text-2xl font-semibold text-slate-900">Speed Arithmetic Rush</h2>
-          <p className="text-sm text-slate-600">
-            Jawab sebanyak mungkin operasi dasar dalam 60 detik. Kecepatan dan akurasi dihitung!
+          <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">Brain Game</p>
+          <h2 className="text-xl font-semibold text-slate-900">Speed Arithmetic Rush</h2>
+          <p className="text-xs text-slate-600">
+            Jawab sebanyak mungkin operasi dasar dalam 60 detik.
           </p>
         </div>
         <button
@@ -106,26 +106,26 @@ export default function SpeedArithmeticRush() {
         </button>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Sisa waktu" value={`${timeLeft}s`} />
-        <StatCard label="Skor" value={`${score}`} />
-        <StatCard label="Akurasi" value={`${accuracy.toFixed(1)}%`} />
-        <StatCard label="Streak terbaik" value={`${bestStreak}`} />
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Chip label="Sisa waktu" value={`${timeLeft}s`} />
+        <Chip label="Skor" value={`${score}`} />
+        <Chip label="Akurasi" value={`${accuracy.toFixed(1)}%`} />
+        <Chip label="Streak" value={`${bestStreak}`} />
       </div>
 
-      <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center">
-        <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Ekspresi</p>
-        <p className="mt-2 text-4xl font-semibold text-slate-900">{question.expression}</p>
+      <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center">
+        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Ekspresi</p>
+        <p className="mt-1 text-3xl font-semibold text-slate-900">{question.expression}</p>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {question.options.map((option) => (
           <button
             key={option}
             type="button"
             onClick={() => handleAnswer(option)}
             disabled={!isRunning}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-lg font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:opacity-60"
+            className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-base font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:opacity-60"
           >
             {option}
           </button>
@@ -135,11 +135,11 @@ export default function SpeedArithmeticRush() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function Chip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center shadow-sm">
-      <p className="text-[11px] uppercase tracking-[0.3em] text-slate-500">{label}</p>
-      <p className="mt-2 text-xl font-semibold text-slate-900">{value}</p>
-    </div>
+    <span className="inline-flex flex-col rounded-2xl border border-slate-200 bg-white px-3 py-2 text-center text-xs font-semibold text-slate-600 shadow-sm">
+      <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">{label}</span>
+      <span className="text-base text-slate-900">{value}</span>
+    </span>
   );
 }
