@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type GridCell = {
   id: number;
@@ -61,9 +61,7 @@ export default function MemoryGridRotation() {
 
   function checkAnswer() {
     if (showPattern) return;
-    const activeIndices = pattern
-      .filter((cell) => cell.active)
-      .map((cell) => cell.id);
+    const activeIndices = pattern.filter((cell) => cell.active).map((cell) => cell.id);
     const selectedIndices = Array.from(selections);
     const correct =
       selectedIndices.length === activeIndices.length &&
@@ -71,7 +69,7 @@ export default function MemoryGridRotation() {
     setAttempts((prev) => prev + 1);
     if (correct) {
       setScore((prev) => prev + 1);
-      setFeedback("Benar! Pola diingat dengan sempurna.");
+      setFeedback("Benar! Kamu mengingat pola dengan tepat.");
       window.setTimeout(() => resetRound(round + 1), 1500);
     } else {
       setFeedback("Belum tepat. Pola akan diulang.");
@@ -84,10 +82,10 @@ export default function MemoryGridRotation() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Brain Game</p>
-          <h2 className="text-2xl font-semibold text-slate-900">Memory Grid & Rotation</h2>
+          <h2 className="text-2xl font-semibold text-slate-900">Memory Grid</h2>
           <p className="text-sm text-slate-600">
-            Hafalkan pola yang muncul, lalu pilih sel yang aktif setelah grid diputar 90°. Setiap
-            ronde jadi lebih menantang!
+            Pola muncul sebentar. Setelah hilang, pilih kembali sel yang tadi menyala. Semakin tinggi
+            ronde, semakin banyak sel yang perlu diingat.
           </p>
         </div>
         <button
@@ -105,29 +103,19 @@ export default function MemoryGridRotation() {
         <StatCard label="Sel aktif" value={pattern.filter((cell) => cell.active).length.toString()} />
       </div>
 
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Langkah 1</p>
-          <p className="text-sm text-slate-600">Ingat posisi sel yang menyala.</p>
-          <GridView
-            cells={pattern}
-            highlight={showPattern}
-            disabled
-          />
-        </div>
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Langkah 2</p>
-          <p className="text-sm text-slate-600">
-            Setelah grid disembunyikan, pilih sel yang tadi menyala dengan urutan yang sama.
-          </p>
-          <GridView
-            cells={pattern}
-            highlight={false}
-            disabled={showPattern}
-            selections={selections}
-            onSelect={handleCellClick}
-          />
-        </div>
+      <div className="mt-6">
+        <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Pola</p>
+        <p className="text-sm text-slate-600">
+          Hafalkan pola yang muncul (highlight biru). Saat grid berubah putih, pilih kembali sel yang
+          benar.
+        </p>
+        <GridView
+          cells={pattern}
+          highlight={showPattern}
+          disabled={showPattern}
+          selections={selections}
+          onSelect={handleCellClick}
+        />
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
