@@ -46,6 +46,23 @@ export default function MemoryGridRotation() {
     setFeedback(null);
   }
 
+  function evaluateSelections(nextSelections: Set<number>) {
+    const activeIndices = pattern.filter((cell) => cell.active).map((cell) => cell.id);
+    if (nextSelections.size !== activeIndices.length) {
+      return;
+    }
+    const correct = Array.from(nextSelections).every((idx) => activeIndices.includes(idx));
+    setAttempts((prev) => prev + 1);
+    if (correct) {
+      setScore((prev) => prev + 1);
+      setFeedback("Mantap! Polanya tepat.");
+      window.setTimeout(() => resetRound(round + 1), 1200);
+    } else {
+      setFeedback("Belum tepat. Coba lagi ya!");
+      window.setTimeout(() => resetRound(Math.max(1, round - 1)), 1200);
+    }
+  }
+
   function handleCellClick(index: number) {
     if (showPattern || feedback) return;
     setSelections((prev) => {
@@ -55,26 +72,9 @@ export default function MemoryGridRotation() {
       } else {
         next.add(index);
       }
+      evaluateSelections(next);
       return next;
     });
-  }
-
-  function checkAnswer() {
-    if (showPattern) return;
-    const activeIndices = pattern.filter((cell) => cell.active).map((cell) => cell.id);
-    const selectedIndices = Array.from(selections);
-    const correct =
-      selectedIndices.length === activeIndices.length &&
-      selectedIndices.every((idx) => activeIndices.includes(idx));
-    setAttempts((prev) => prev + 1);
-    if (correct) {
-      setScore((prev) => prev + 1);
-      setFeedback("Benar! Kamu mengingat pola dengan tepat.");
-      window.setTimeout(() => resetRound(round + 1), 1500);
-    } else {
-      setFeedback("Belum tepat. Pola akan diulang.");
-      window.setTimeout(() => resetRound(Math.max(1, round - 1)), 1500);
-    }
   }
 
   return (
@@ -102,10 +102,10 @@ export default function MemoryGridRotation() {
         <Chip label="Sel aktif" value={pattern.filter((cell) => cell.active).length.toString()} />
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 flex flex-col items-center">
         <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Pola</p>
-        <p className="text-xs text-slate-600">
-          Hafalkan pola biru. Setelah hilang, pilih sel yang sama.
+        <p className="text-xs text-slate-600 text-center">
+          Hafalkan pola biru. Setelah hilang, pilih sel yang sama—jawaban dicek otomatis.
         </p>
         <GridView
           cells={pattern}
@@ -116,17 +116,9 @@ export default function MemoryGridRotation() {
         />
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={checkAnswer}
-          disabled={showPattern || selections.size === 0 || Boolean(feedback)}
-          className="rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
-        >
-          Cek Jawaban
-        </button>
-        {feedback && <p className="text-xs font-semibold text-slate-700">{feedback}</p>}
-      </div>
+      {feedback && (
+        <p className="mt-3 text-center text-xs font-semibold text-slate-700">{feedback}</p>
+      )}
     </section>
   );
 }
@@ -145,7 +137,7 @@ function GridView({
   onSelect?: (index: number) => void;
 }) {
   return (
-    <div className="mt-3 grid grid-cols-4 gap-2">
+    <div className="mt-3 grid w-full max-w-xs grid-cols-4 gap-1">
       {cells.map((cell) => {
         const isSelected = selections?.has(cell.id);
         return (
@@ -154,7 +146,7 @@ function GridView({
             type="button"
             disabled={disabled}
             onClick={() => onSelect?.(cell.id)}
-            className={`aspect-square rounded-xl border transition ${
+            className={`aspect-square rounded-lg border transition ${
               highlight && cell.active
                 ? "border-sky-400 bg-sky-100"
                 : isSelected
