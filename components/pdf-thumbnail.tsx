@@ -22,18 +22,38 @@ type PdfThumbnailProps = {
 
 export default function PdfThumbnail({ bookId, fileUrl, title, className, coverUrl }: PdfThumbnailProps) {
   const cacheKey = useMemo(() => `${CACHE_PREFIX}${fileUrl}`, [fileUrl]);
-  const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(coverUrl ?? null);
+  const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(null);
+  const [needsRender, setNeedsRender] = useState(!coverUrl);
   const [saving, setSaving] = useState(false);
   const [errored, setErrored] = useState(false);
 
   useEffect(() => {
-    if (coverUrl) {
-      setLocalCoverUrl(coverUrl);
+    if (!coverUrl) {
+      setNeedsRender(true);
+      return;
     }
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => {
+      if (!cancelled) {
+        setLocalCoverUrl(coverUrl);
+        setNeedsRender(false);
+      }
+    };
+    img.onerror = () => {
+      if (!cancelled) {
+        setLocalCoverUrl(null);
+        setNeedsRender(true);
+      }
+    };
+    img.src = coverUrl;
+    return () => {
+      cancelled = true;
+    };
   }, [coverUrl]);
 
   useEffect(() => {
-    if (coverUrl) {
+    if (!needsRender) {
       return;
     }
 
@@ -51,6 +71,7 @@ export default function PdfThumbnail({ bookId, fileUrl, title, className, coverU
     const cached = typeof window !== "undefined" ? readCache() : null;
     if (cached) {
       setLocalCoverUrl(cached);
+      setNeedsRender(false);
       return () => {};
     }
 
@@ -71,6 +92,7 @@ export default function PdfThumbnail({ bookId, fileUrl, title, className, coverU
         const dataUrl = canvas.toDataURL("image/png");
         if (!cancelled) {
           setLocalCoverUrl(dataUrl);
+          setNeedsRender(false);
           try {
             localStorage.setItem(cacheKey, dataUrl);
           } catch {
@@ -102,7 +124,7 @@ export default function PdfThumbnail({ bookId, fileUrl, title, className, coverU
       cancelled = true;
       task?.destroy();
     };
-  }, [API_BASE, bookId, cacheKey, coverUrl, fileUrl, saving]);
+  }, [API_BASE, bookId, cacheKey, fileUrl, needsRender, saving]);
 
   if (errored) {
     return (
