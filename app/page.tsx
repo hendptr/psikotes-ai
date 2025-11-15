@@ -26,10 +26,10 @@ export default async function LandingPage() {
       <section className="rounded-3xl border border-slate-200 bg-white p-10 shadow-lg">
         <div className="mx-auto grid max-w-4xl gap-6 text-center">
           <h1 className="text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
-            Winniee Cantikk Woy!
+            Winnie, I love you, always. You're my everything to me now ❤︎
           </h1>
           <p className="text-base leading-relaxed text-slate-600">
-            Winnie wa totemoooo utsukushii desu ne! 
+            - Kadek 11/15/2025
           </p>
         </div>
       </section>

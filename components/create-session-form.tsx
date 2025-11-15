@@ -154,6 +154,14 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
     () => formatSeconds(useCustomTimer ? customSeconds : activeMode.defaultSeconds),
     [useCustomTimer, customSeconds, activeMode]
   );
+  const activeCategoryLabel = useMemo(
+    () => CATEGORY_OPTIONS.find((option) => option.value === category)?.label ?? category,
+    [category]
+  );
+  const activeDifficultyLabel = useMemo(
+    () => DIFFICULTY_OPTIONS.find((option) => option.value === difficulty)?.label ?? difficulty,
+    [difficulty]
+  );
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -227,52 +235,78 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
   }
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-4">
-          <span className="text-xs uppercase tracking-[0.35em] text-slate-500">Mood latihan</span>
-          <div className="grid gap-3">
-            {MODE_OPTIONS.map((mode) => {
+    <div className="rounded-[32px] border border-slate-100 bg-white/90 p-8 shadow-xl">
+      <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
+        <aside className="flex flex-col gap-6 rounded-3xl border border-slate-100 bg-slate-50/80 p-6">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.35em] text-slate-400">Mode latihan</p>
+            <h2 className="mt-2 text-xl font-semibold text-slate-900">Mood latihan harianmu</h2>
+            <p className="mt-2 text-sm text-slate-500">
+              Pilih ritme favorit sebelum menyetel kategori, tingkat, dan timer.
+            </p>
+          </div>
+          <nav className="space-y-2">
+            {MODE_OPTIONS.map((mode, index) => {
               const active = mode.value === userType;
+              const indexLabel = String(index + 1).padStart(2, "0");
               return (
                 <button
                   key={mode.value}
                   type="button"
                   onClick={() => setUserType(mode.value)}
-                  className={`rounded-2xl border px-4 py-3 text-left transition ${
+                  className={`group flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-left transition ${
                     active
-                      ? "border-slate-900 bg-slate-900 text-white shadow-sm"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                      ? "border-slate-900 bg-slate-900 text-white shadow-lg"
+                      : "border-transparent bg-white/80 text-slate-600 hover:border-slate-200 hover:bg-white"
                   }`}
                 >
-                  <p className="text-sm font-semibold">{mode.label}</p>
-                  <p className={`text-xs ${active ? "text-slate-100/90" : "text-slate-500"}`}>
-                    {mode.description}
-                  </p>
-                  <p
-                    className={`text-[11px] uppercase tracking-[0.2em] ${
-                      active ? "text-slate-200" : "text-slate-400"
+                  <span
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl border text-sm font-semibold ${
+                      active ? "border-white/30 bg-white/10 text-white" : "border-slate-200 bg-white text-slate-500"
                     }`}
                   >
-                    Timer standar: {formatSeconds(mode.defaultSeconds)}
-                  </p>
+                    {indexLabel}
+                  </span>
+                  <div className="flex-1 space-y-1">
+                    <p className="text-sm font-semibold">{mode.label}</p>
+                    <p className={`text-xs ${active ? "text-white/80" : "text-slate-500"}`}>
+                      {mode.description}
+                    </p>
+                    <p
+                      className={`text-[11px] uppercase tracking-[0.25em] ${
+                        active ? "text-white/70" : "text-slate-400"
+                      }`}
+                    >
+                      Timer standar {formatSeconds(mode.defaultSeconds)}
+                    </p>
+                  </div>
                 </button>
               );
             })}
+          </nav>
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-white/90 p-4 text-sm text-slate-600">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Konfigurasi aktif</p>
+            <p className="mt-3 text-base font-semibold text-slate-900">{activeMode.label}</p>
+            <p className="text-xs text-slate-500">{timerLabel}</p>
+            <div className="mt-3 space-y-1 text-xs text-slate-500">
+              <p>{activeCategoryLabel}</p>
+              <p>{activeDifficultyLabel}</p>
+              <p>{count} soal</p>
+            </div>
           </div>
-        </div>
+        </aside>
 
-        <div className="space-y-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Kategori</p>
-            <div className="mt-3 grid gap-2">
+        <section className="space-y-5">
+          <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+            <p className="text-[11px] uppercase tracking-[0.35em] text-slate-400">Kategori soal</p>
+            <div className="mt-4 grid gap-2">
               {CATEGORY_OPTIONS.map((option) => (
                 <label
                   key={option.value}
                   className={`flex cursor-pointer items-center justify-between rounded-2xl border px-4 py-3 text-sm transition ${
                     option.value === category
                       ? "border-slate-900 bg-white text-slate-900 shadow-sm"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                      : "border-slate-100 bg-slate-50 text-slate-600 hover:border-slate-200"
                   }`}
                 >
                   <span>{option.label}</span>
@@ -288,44 +322,50 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
             </div>
           </div>
 
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Tingkat</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {DIFFICULTY_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setDifficulty(option.value)}
-                  className={`rounded-full px-4 py-2 text-sm transition ${
-                    option.value === difficulty
-                      ? "bg-slate-900 text-white shadow-sm"
-                      : "bg-white text-slate-600 hover:bg-slate-100"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+              <p className="text-[11px] uppercase tracking-[0.35em] text-slate-400">Tingkat kesulitan</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {DIFFICULTY_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setDifficulty(option.value)}
+                    className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                      option.value === difficulty
+                        ? "border-slate-900 bg-slate-900 text-white shadow-sm"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.35em] text-slate-400">
+                <span>Jumlah soal</span>
+                <span className="text-slate-600">{count} butir</span>
+              </div>
+              <input
+                type="range"
+                min={5}
+                max={30}
+                step={1}
+                value={count}
+                onChange={(event) => setCount(Number(event.target.value))}
+                className="mt-4 w-full accent-slate-900"
+              />
+              <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+                <span>5 soal</span>
+                <span>30 soal</span>
+              </div>
             </div>
           </div>
 
-          <div>
-            <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-500">
-              <span>Jumlah soal</span>
-              <span className="text-slate-700">{count} butir</span>
-            </div>
-            <input
-              type="range"
-              min={5}
-              max={30}
-              step={1}
-              value={count}
-              onChange={(event) => setCount(Number(event.target.value))}
-              className="mt-2 w-full accent-slate-900"
-            />
-          </div>
-
-          <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
-            <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-500">
+          <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.35em] text-slate-400">
               <span>Timer per soal</span>
               <label className="flex items-center gap-2 text-[11px] font-semibold text-slate-600">
                 <input
@@ -338,10 +378,10 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
               </label>
             </div>
             {useCustomTimer ? (
-              <>
-                <p className="text-xs text-slate-500">
+              <div className="mt-4 space-y-4">
+                <p className="text-sm text-slate-500">
                   Timer custom:{" "}
-                  <span className="font-semibold text-slate-700">{formatSeconds(customSeconds)}</span>
+                  <span className="font-semibold text-slate-900">{formatSeconds(customSeconds)}</span>
                 </p>
                 <input
                   type="range"
@@ -356,34 +396,39 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
                   <span>10 detik</span>
                   <span>120 detik</span>
                 </div>
-              </>
+              </div>
             ) : (
-              <p className="text-xs text-slate-500">
+              <p className="mt-4 text-sm text-slate-500">
                 Mengikuti standar mode:{" "}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-900">
                   {formatSeconds(activeMode.defaultSeconds)}
                 </span>
               </p>
             )}
           </div>
-        </div>
+        </section>
       </div>
 
       {error && (
-        <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+        <p className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
           {error}
         </p>
       )}
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <div className="text-xs text-slate-500">
-          Mode {activeMode.label} - {timerLabel}
+      <div className="mt-6 flex flex-wrap items-center gap-4 rounded-2xl border border-slate-100 bg-white/90 px-5 py-4">
+        <div className="min-w-[220px] flex-1 text-xs text-slate-500">
+          <p className="text-sm font-semibold text-slate-900">
+            Mode {activeMode.label} • {timerLabel}
+          </p>
+          <p className="mt-1 text-slate-500">
+            {activeCategoryLabel} • {activeDifficultyLabel} • {count} soal
+          </p>
         </div>
         <button
           type="button"
           onClick={handleStart}
           disabled={loading}
-          className="inline-flex items-center gap-2 rounded-full bg-sky-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 disabled:opacity-70"
+          className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300 disabled:opacity-70"
         >
           {loading ? "Menyiapkan soal..." : "Mulai Latihan"}
           <span aria-hidden className="text-lg">{">"}</span>
