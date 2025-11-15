@@ -433,6 +433,11 @@ const bookAnnotationPointSchema = new Schema(
 
 const bookAnnotationStrokeSchema = new Schema(
   {
+    type: {
+      type: String,
+      enum: ["pen", "circle", "cross"],
+      default: "pen",
+    },
     color: { type: String, required: true },
     width: { type: Number, required: true, min: 0.5 },
     points: { type: [bookAnnotationPointSchema], required: true },

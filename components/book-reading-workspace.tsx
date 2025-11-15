@@ -50,10 +50,15 @@ export default function BookReadingWorkspace({
     page: activePage,
     strokes: initialAnnotations[activePage] ?? [],
   });
+  const activePageRef = useRef(activePage);
 
   useEffect(() => {
     latestProgressRef.current = progress;
   }, [progress]);
+
+  useEffect(() => {
+    activePageRef.current = activePage;
+  }, [activePage]);
 
   const sendBeaconProgress = useCallback(
     (snapshot: ProgressState) => {
@@ -226,12 +231,11 @@ export default function BookReadingWorkspace({
 
   const initialPage = useMemo(() => progress.lastPage ?? 1, [progress.lastPage]);
 
-  const handleAnnotationChange = useCallback(
-    (updated: AnnotationStroke[]) => {
-      setStrokes((prev) => ({ ...prev, [activePage]: updated }));
-    },
-    [activePage]
-  );
+  const handleAnnotationChange = useCallback((updated: AnnotationStroke[]) => {
+    const page = activePageRef.current;
+    setStrokes((prev) => ({ ...prev, [page]: updated }));
+    latestAnnotationRef.current = { page, strokes: updated };
+  }, []);
 
   const handleAnnotationSave = useCallback(async () => {
     await saveAnnotations(activePage, currentStrokes, { silent: false });

@@ -12,6 +12,7 @@ const pointSchema = z.object({
 });
 
 const strokeSchema = z.object({
+  type: z.enum(["pen", "circle", "cross"]).optional(),
   color: z.string().min(1),
   width: z.number().min(0.5).max(20),
   points: z.array(pointSchema).min(2),
