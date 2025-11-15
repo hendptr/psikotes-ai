@@ -11,8 +11,8 @@ export const revalidate = 0;
 
 type BookListItem = Pick<
   BookDocument,
-  "id" | "title" | "author" | "description" | "pdfUrl" | "fileSize"
-> & { createdAt: string; createdBy: string | null };
+  "id" | "title" | "author" | "description" | "fileSize"
+> & { createdAt: string; createdBy: string | null; pdfUrl: string };
 
 async function fetchBooks(): Promise<BookListItem[]> {
   await connectMongo();
@@ -24,7 +24,7 @@ async function fetchBooks(): Promise<BookListItem[]> {
         title: string;
         author: string;
         description: string;
-        pdfUrl: string;
+    pdfUrl: string;
         fileSize: number;
         createdAt: Date;
         createdBy?: string | null;
@@ -36,7 +36,7 @@ async function fetchBooks(): Promise<BookListItem[]> {
     title: doc.title,
     author: doc.author,
     description: doc.description,
-    pdfUrl: `${BASE_PATH}${doc.pdfUrl}`,
+    pdfUrl: `${BASE_PATH}/api/books/${doc._id}/file`,
     fileSize: doc.fileSize,
     createdAt: doc.createdAt?.toISOString?.() ?? new Date().toISOString(),
     createdBy: doc.createdBy ?? null,

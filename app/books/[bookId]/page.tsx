@@ -11,8 +11,8 @@ export const revalidate = 0;
 
 type BookDetail = Pick<
   BookDocument,
-  "id" | "title" | "author" | "description" | "pdfUrl" | "fileSize" | "createdAt"
->;
+  "id" | "title" | "author" | "description" | "fileSize" | "createdAt"
+> & { pdfUrl: string };
 
 const getBook = cache(async (bookId: string): Promise<BookDetail | null> => {
   await connectMongo();
@@ -35,7 +35,7 @@ const getBook = cache(async (bookId: string): Promise<BookDetail | null> => {
     title: doc.title,
     author: doc.author,
     description: doc.description,
-    pdfUrl: `${BASE_PATH}${doc.pdfUrl}`,
+    pdfUrl: `${BASE_PATH}/api/books/${doc._id}/file`,
     fileSize: doc.fileSize,
     createdAt: doc.createdAt,
   };

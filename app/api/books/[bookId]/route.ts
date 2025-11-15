@@ -56,7 +56,6 @@ export async function DELETE(
     ]);
 
     await BookModel.deleteOne({ _id: bookId });
-
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete book:", error);
