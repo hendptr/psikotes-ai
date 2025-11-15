@@ -12,6 +12,7 @@ const navItems = [
   { href: "/sessions", label: "Arsip Sesi" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/kreplin", label: "Tes Koran" },
+  { href: "/books", label: "Perpustakaan" },
   { href: "/brain-games", label: "Brain Games" },
 ];
 

@@ -320,6 +320,66 @@ const kreplinResultSchema = new Schema(
 
 kreplinResultSchema.index({ userId: 1, createdAt: -1 });
 
+const bookSchema = new Schema(
+  {
+    _id: {
+      type: String,
+      default: () => randomUUID(),
+    },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    author: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    description: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    pdfPath: {
+      type: String,
+      required: true,
+    },
+    pdfUrl: {
+      type: String,
+      required: true,
+    },
+    originalFileName: {
+      type: String,
+      required: true,
+    },
+    fileSize: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    coverImagePath: {
+      type: String,
+      default: null,
+    },
+    coverImageUrl: {
+      type: String,
+      default: null,
+    },
+    createdBy: {
+      type: String,
+      default: null,
+      ref: "User",
+    },
+  },
+  {
+    collection: "books",
+    timestamps: true,
+  }
+);
+
+bookSchema.index({ createdAt: -1 });
+
 const toJsonTransform = {
   virtuals: true,
   versionKey: false,
@@ -337,6 +397,7 @@ testSessionSchema.set("toJSON", toJsonTransform);
 questionInstanceSchema.set("toJSON", toJsonTransform);
 answerSchema.set("toJSON", toJsonTransform);
 kreplinResultSchema.set("toJSON", toJsonTransform);
+bookSchema.set("toJSON", toJsonTransform);
 
 export const UserModel =
   models.User ?? model("User", userSchema);
@@ -353,6 +414,9 @@ export const AnswerModel =
 export const KreplinResultModel =
   models.KreplinResult ?? model("KreplinResult", kreplinResultSchema);
 
+export const BookModel =
+  models.Book ?? model("Book", bookSchema);
+
 export type QuestionOption = InferSchemaType<typeof optionsSchema>;
 export type PsychotestQuestion = InferSchemaType<typeof questionSchema>;
 export type UserDocument = InferSchemaType<typeof userSchema> & { id: string };
@@ -360,3 +424,4 @@ export type TestSessionDocument = InferSchemaType<typeof testSessionSchema> & { 
 export type QuestionInstanceDocument = InferSchemaType<typeof questionInstanceSchema> & { id: string };
 export type AnswerDocument = InferSchemaType<typeof answerSchema> & { id: string };
 export type KreplinResultDocument = InferSchemaType<typeof kreplinResultSchema> & { id: string };
+export type BookDocument = InferSchemaType<typeof bookSchema> & { id: string };

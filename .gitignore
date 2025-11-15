@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# uploaded books
+public/books/pdfs/*
+!public/books/pdfs/.gitkeep
