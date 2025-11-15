@@ -380,6 +380,102 @@ const bookSchema = new Schema(
 
 bookSchema.index({ createdAt: -1 });
 
+const bookProgressSchema = new Schema(
+  {
+    _id: {
+      type: String,
+      default: () => randomUUID(),
+    },
+    userId: {
+      type: String,
+      required: true,
+      index: true,
+      ref: "User",
+    },
+    bookId: {
+      type: String,
+      required: true,
+      index: true,
+      ref: "Book",
+    },
+    status: {
+      type: String,
+      enum: ["not_started", "reading", "completed"],
+      default: "not_started",
+    },
+    lastPage: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
+    note: {
+      type: String,
+      default: "",
+      trim: true,
+      maxlength: 2000,
+    },
+  },
+  {
+    collection: "bookProgress",
+    timestamps: true,
+  }
+);
+
+bookProgressSchema.index({ userId: 1, bookId: 1 }, { unique: true });
+
+const bookAnnotationPointSchema = new Schema(
+  {
+    x: { type: Number, required: true, min: 0, max: 1 },
+    y: { type: Number, required: true, min: 0, max: 1 },
+  },
+  { _id: false }
+);
+
+const bookAnnotationStrokeSchema = new Schema(
+  {
+    color: { type: String, required: true },
+    width: { type: Number, required: true, min: 0.5 },
+    points: { type: [bookAnnotationPointSchema], required: true },
+  },
+  { _id: false }
+);
+
+const bookAnnotationSchema = new Schema(
+  {
+    _id: {
+      type: String,
+      default: () => randomUUID(),
+    },
+    userId: {
+      type: String,
+      required: true,
+      index: true,
+      ref: "User",
+    },
+    bookId: {
+      type: String,
+      required: true,
+      index: true,
+      ref: "Book",
+    },
+    page: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    strokes: {
+      type: [bookAnnotationStrokeSchema],
+      default: [],
+    },
+  },
+  {
+    collection: "bookAnnotations",
+    timestamps: true,
+  }
+);
+
+bookAnnotationSchema.index({ userId: 1, bookId: 1, page: 1 }, { unique: true });
+
 const toJsonTransform = {
   virtuals: true,
   versionKey: false,
@@ -398,6 +494,8 @@ questionInstanceSchema.set("toJSON", toJsonTransform);
 answerSchema.set("toJSON", toJsonTransform);
 kreplinResultSchema.set("toJSON", toJsonTransform);
 bookSchema.set("toJSON", toJsonTransform);
+bookProgressSchema.set("toJSON", toJsonTransform);
+bookAnnotationSchema.set("toJSON", toJsonTransform);
 
 export const UserModel =
   models.User ?? model("User", userSchema);
@@ -417,6 +515,12 @@ export const KreplinResultModel =
 export const BookModel =
   models.Book ?? model("Book", bookSchema);
 
+export const BookProgressModel =
+  models.BookProgress ?? model("BookProgress", bookProgressSchema);
+
+export const BookAnnotationModel =
+  models.BookAnnotation ?? model("BookAnnotation", bookAnnotationSchema);
+
 export type QuestionOption = InferSchemaType<typeof optionsSchema>;
 export type PsychotestQuestion = InferSchemaType<typeof questionSchema>;
 export type UserDocument = InferSchemaType<typeof userSchema> & { id: string };
@@ -425,3 +529,5 @@ export type QuestionInstanceDocument = InferSchemaType<typeof questionInstanceSc
 export type AnswerDocument = InferSchemaType<typeof answerSchema> & { id: string };
 export type KreplinResultDocument = InferSchemaType<typeof kreplinResultSchema> & { id: string };
 export type BookDocument = InferSchemaType<typeof bookSchema> & { id: string };
+export type BookProgressDocument = InferSchemaType<typeof bookProgressSchema> & { id: string };
+export type BookAnnotationDocument = InferSchemaType<typeof bookAnnotationSchema> & { id: string };

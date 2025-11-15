@@ -3,11 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { connectMongo } from "@/lib/MongoDB";
-import { BookModel, type BookDocument } from "@/lib/models";
+import { BookAnnotationModel, BookModel, BookProgressModel, type BookDocument } from "@/lib/models";
 import { BASE_PATH } from "@/lib/config";
-import BookReader from "@/components/book-reader";
+import BookReadingWorkspace from "@/components/book-reading-workspace";
+import { getCurrentUserFromCookies } from "@/lib/auth";
 
 export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 type BookDetail = Pick<
   BookDocument,
@@ -82,12 +84,49 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
   };
 }
 
+async function fetchProgress(bookId: string, userId?: string | null) {
+  if (!userId) return null;
+  await connectMongo();
+  const progress = await BookProgressModel.findOne({ userId, bookId }).lean<{
+    status: "not_started" | "reading" | "completed";
+    lastPage: number;
+    note: string;
+    updatedAt: Date;
+  }>();
+  if (!progress) return null;
+  return {
+    status: progress.status,
+    lastPage: progress.lastPage,
+    note: progress.note,
+    updatedAt: progress.updatedAt?.toISOString(),
+  };
+}
+
+async function fetchAnnotations(bookId: string, userId?: string | null) {
+  if (!userId) return {};
+  await connectMongo();
+  const docs = await BookAnnotationModel.find({ userId, bookId }).lean<
+    Array<{
+      page: number;
+      strokes: { color: string; width: number; points: { x: number; y: number }[] }[];
+    }>
+  >();
+  const map: Record<number, { color: string; width: number; points: { x: number; y: number }[] }[]> = {};
+  for (const doc of docs) {
+    map[doc.page] = doc.strokes;
+  }
+  return map;
+}
+
 export default async function BookDetailPage({ params }: BookPageProps) {
   const resolvedParams = await Promise.resolve(params);
   const book = await getBook(resolvedParams.bookId);
   if (!book) {
     notFound();
   }
+  const user = await getCurrentUserFromCookies();
+  const progress = await fetchProgress(book.id, user?.id);
+  const annotations = await fetchAnnotations(book.id, user?.id);
 
   return (
     <div className="space-y-8">
@@ -108,7 +147,19 @@ export default async function BookDetailPage({ params }: BookPageProps) {
         <p className="max-w-3xl text-base text-slate-600">{book.description || "Tidak ada deskripsi."}</p>
       </div>
 
-      <BookReader fileUrl={book.pdfUrl} title={book.title} />
+      {user ? (
+        <BookReadingWorkspace
+          bookId={book.id}
+          title={book.title}
+          fileUrl={book.pdfUrl}
+          initialProgress={progress}
+          initialAnnotations={annotations}
+        />
+      ) : (
+        <div className="rounded-3xl border border-slate-200 bg-white/70 p-4 text-sm text-slate-500">
+          Login untuk menyimpan progres, halaman terakhir, dan catatan baca.
+        </div>
+      )}
     </div>
   );
 }

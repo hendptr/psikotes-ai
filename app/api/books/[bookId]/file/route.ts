@@ -31,7 +31,7 @@ export async function GET(
 
     const fileStats = await stat(book.pdfPath);
     const nodeStream = createReadStream(book.pdfPath);
-    const webStream = Readable.toWeb(nodeStream);
+    const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream<Uint8Array>;
 
     const filename = book.originalFileName || `${book.title ?? "book"}.pdf`;
 

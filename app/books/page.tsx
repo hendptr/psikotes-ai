@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { connectMongo } from "@/lib/MongoDB";
-import { BookModel, type BookDocument } from "@/lib/models";
+import { BookModel, BookProgressModel, type BookDocument } from "@/lib/models";
 import { getCurrentUserFromCookies } from "@/lib/auth";
 import { BASE_PATH } from "@/lib/config";
 import BookUploadForm from "@/components/book-upload-form";
@@ -8,28 +8,45 @@ import PdfThumbnail from "@/components/pdf-thumbnail";
 import BookDeleteButton from "@/components/book-delete-button";
 
 export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 type BookListItem = Pick<
   BookDocument,
   "id" | "title" | "author" | "description" | "fileSize"
-> & { createdAt: string; createdBy: string | null; pdfUrl: string };
+> & {
+  createdAt: string;
+  createdBy: string | null;
+  pdfUrl: string;
+  progress?: {
+    status: string;
+    lastPage: number;
+  } | null;
+};
 
-async function fetchBooks(): Promise<BookListItem[]> {
+async function fetchBooks(userId?: string | null): Promise<BookListItem[]> {
   await connectMongo();
-  const docs = await BookModel.find()
-    .sort({ createdAt: -1 })
-    .lean<
-      Array<{
-        _id: string;
-        title: string;
-        author: string;
-        description: string;
-    pdfUrl: string;
-        fileSize: number;
-        createdAt: Date;
-        createdBy?: string | null;
-      }>
-    >();
+  const [docs, progresses] = await Promise.all([
+    BookModel.find()
+      .sort({ createdAt: -1 })
+      .lean<
+        Array<{
+          _id: string;
+          title: string;
+          author: string;
+          description: string;
+          pdfUrl: string;
+          fileSize: number;
+          createdAt: Date;
+          createdBy?: string | null;
+        }>
+      >(),
+    userId
+      ? BookProgressModel.find({ userId })
+          .lean<Array<{ bookId: string; status: string; lastPage: number }>>()
+      : Promise.resolve([]),
+  ]);
+
+  const progressMap = new Map(progresses.map((item) => [item.bookId, { status: item.status, lastPage: item.lastPage }]));
 
   return docs.map((doc) => ({
     id: doc._id,
@@ -40,6 +57,7 @@ async function fetchBooks(): Promise<BookListItem[]> {
     fileSize: doc.fileSize,
     createdAt: doc.createdAt?.toISOString?.() ?? new Date().toISOString(),
     createdBy: doc.createdBy ?? null,
+    progress: progressMap.get(doc._id) ?? null,
   }));
 }
 
@@ -67,8 +85,16 @@ function formatDate(value: string) {
   }
 }
 
+function progressLabel(progress?: BookListItem["progress"]) {
+  if (!progress) return "Belum dimulai";
+  if (progress.status === "completed") return "Selesai dibaca";
+  if (progress.status === "reading") return `Sedang dibaca · Hal ${progress.lastPage}`;
+  return "Belum dimulai";
+}
+
 export default async function BooksPage() {
-  const [user, books] = await Promise.all([getCurrentUserFromCookies(), fetchBooks()]);
+  const user = await getCurrentUserFromCookies();
+  const books = await fetchBooks(user?.id ?? null);
 
   return (
     <div className="space-y-10">
@@ -115,6 +141,9 @@ export default async function BooksPage() {
                     <h3 className="text-xl font-semibold text-slate-900">{book.title}</h3>
                     <span className="text-xs text-slate-400">{formatBytes(book.fileSize)}</span>
                   </div>
+                  <span className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-600">
+                    {progressLabel(book.progress)}
+                  </span>
                   <p className="text-sm font-medium text-slate-500">
                     {book.author || "Anonim"} - Diunggah {formatDate(book.createdAt)}
                   </p>
