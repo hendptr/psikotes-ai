@@ -78,7 +78,7 @@ export default async function BooksPage() {
               Semua PDF yang diunggah akan langsung tersedia untuk seluruh pengguna.
             </p>
             <ul className="text-sm text-slate-500">
-              <li>- Unggah file PDF hingga 35MB.</li>
+              <li>- Unggah file PDF hingga 100MB.</li>
               <li>- Siap dibaca lewat penampil PDF yang nyaman.</li>
             </ul>
           </div>

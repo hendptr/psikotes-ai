@@ -9,7 +9,7 @@ import { getCurrentUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-const MAX_PDF_SIZE_BYTES = 35 * 1024 * 1024; // 35 MB safety cap
+const MAX_PDF_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB safety cap
 const BOOKS_ROOT = path.join(process.cwd(), "public", "books");
 const PDF_DIR = path.join(BOOKS_ROOT, "pdfs");
 
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (file.size > MAX_PDF_SIZE_BYTES) {
-      return NextResponse.json({ error: "Ukuran PDF maksimal 35MB." }, { status: 400 });
+      return NextResponse.json({ error: "Ukuran PDF maksimal 100MB." }, { status: 400 });
     }
 
     const fileBuffer = Buffer.from(await file.arrayBuffer());
