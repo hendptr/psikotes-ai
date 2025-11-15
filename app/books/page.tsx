@@ -5,13 +5,14 @@ import { getCurrentUserFromCookies } from "@/lib/auth";
 import { BASE_PATH } from "@/lib/config";
 import BookUploadForm from "@/components/book-upload-form";
 import PdfThumbnail from "@/components/pdf-thumbnail";
+import BookDeleteButton from "@/components/book-delete-button";
 
 export const revalidate = 0;
 
 type BookListItem = Pick<
   BookDocument,
   "id" | "title" | "author" | "description" | "pdfUrl" | "fileSize"
-> & { createdAt: string };
+> & { createdAt: string; createdBy: string | null };
 
 async function fetchBooks(): Promise<BookListItem[]> {
   await connectMongo();
@@ -26,6 +27,7 @@ async function fetchBooks(): Promise<BookListItem[]> {
         pdfUrl: string;
         fileSize: number;
         createdAt: Date;
+        createdBy?: string | null;
       }>
     >();
 
@@ -37,6 +39,7 @@ async function fetchBooks(): Promise<BookListItem[]> {
     pdfUrl: `${BASE_PATH}${doc.pdfUrl}`,
     fileSize: doc.fileSize,
     createdAt: doc.createdAt?.toISOString?.() ?? new Date().toISOString(),
+    createdBy: doc.createdBy ?? null,
   }));
 }
 
@@ -142,6 +145,9 @@ export default async function BooksPage() {
                   >
                     Unduh
                   </a>
+                  {user && user.id === book.createdBy && (
+                    <BookDeleteButton bookId={book.id} bookTitle={book.title} />
+                  )}
                 </div>
               </article>
             ))}
