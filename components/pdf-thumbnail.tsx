@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { pdfjs } from "react-pdf";
+import { API_BASE } from "@/lib/config";
 
 const WORKER_SRC = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
@@ -12,17 +13,30 @@ if (typeof window !== "undefined" && pdfjs.GlobalWorkerOptions.workerSrc !== WOR
 const CACHE_PREFIX = "pdf-cover:";
 
 type PdfThumbnailProps = {
+  bookId: string;
   fileUrl: string;
   title: string;
   className?: string;
+  coverUrl?: string;
 };
 
-export default function PdfThumbnail({ fileUrl, title, className }: PdfThumbnailProps) {
+export default function PdfThumbnail({ bookId, fileUrl, title, className, coverUrl }: PdfThumbnailProps) {
   const cacheKey = useMemo(() => `${CACHE_PREFIX}${fileUrl}`, [fileUrl]);
-  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [localCoverUrl, setLocalCoverUrl] = useState<string | null>(coverUrl ?? null);
+  const [saving, setSaving] = useState(false);
   const [errored, setErrored] = useState(false);
 
   useEffect(() => {
+    if (coverUrl) {
+      setLocalCoverUrl(coverUrl);
+    }
+  }, [coverUrl]);
+
+  useEffect(() => {
+    if (coverUrl) {
+      return;
+    }
+
     let cancelled = false;
     let task: ReturnType<typeof pdfjs.getDocument> | null = null;
 
@@ -36,7 +50,7 @@ export default function PdfThumbnail({ fileUrl, title, className }: PdfThumbnail
 
     const cached = typeof window !== "undefined" ? readCache() : null;
     if (cached) {
-      setCoverUrl(cached);
+      setLocalCoverUrl(cached);
       return () => {};
     }
 
@@ -56,11 +70,23 @@ export default function PdfThumbnail({ fileUrl, title, className }: PdfThumbnail
         await page.render({ canvasContext: context, viewport, canvas }).promise;
         const dataUrl = canvas.toDataURL("image/png");
         if (!cancelled) {
-          setCoverUrl(dataUrl);
+          setLocalCoverUrl(dataUrl);
           try {
             localStorage.setItem(cacheKey, dataUrl);
           } catch {
-            // ignore quota
+            // ignore quota errors
+          }
+          if (!saving) {
+            setSaving(true);
+            fetch(`${API_BASE}/books/${bookId}/cover`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ dataUrl }),
+            })
+              .catch(() => {})
+              .finally(() => {
+                setSaving(false);
+              });
           }
         }
       } catch (error) {
@@ -76,7 +102,7 @@ export default function PdfThumbnail({ fileUrl, title, className }: PdfThumbnail
       cancelled = true;
       task?.destroy();
     };
-  }, [cacheKey, fileUrl]);
+  }, [API_BASE, bookId, cacheKey, coverUrl, fileUrl, saving]);
 
   if (errored) {
     return (
@@ -97,8 +123,12 @@ export default function PdfThumbnail({ fileUrl, title, className }: PdfThumbnail
       }`}
       aria-label={`Preview halaman pertama ${title}`}
     >
-      {coverUrl ? (
-        <img src={coverUrl} alt={`Cover ${title}`} className="h-full max-h-64 w-auto object-contain drop-shadow-md" />
+      {localCoverUrl ? (
+        <img
+          src={localCoverUrl}
+          alt={`Cover ${title}`}
+          className="h-full max-h-64 w-auto object-contain drop-shadow-md"
+        />
       ) : (
         <div className="text-xs font-medium text-slate-500">Menyiapkan cover...</div>
       )}

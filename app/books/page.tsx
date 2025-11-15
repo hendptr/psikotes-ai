@@ -21,6 +21,7 @@ type BookListItem = Pick<
     status: string;
     lastPage: number;
   } | null;
+  coverImageUrl?: string | null;
 };
 
 async function fetchBooks(userId?: string | null): Promise<BookListItem[]> {
@@ -38,6 +39,7 @@ async function fetchBooks(userId?: string | null): Promise<BookListItem[]> {
           fileSize: number;
           createdAt: Date;
           createdBy?: string | null;
+          coverImageUrl?: string | null;
         }>
       >(),
     userId
@@ -58,6 +60,7 @@ async function fetchBooks(userId?: string | null): Promise<BookListItem[]> {
     createdAt: doc.createdAt?.toISOString?.() ?? new Date().toISOString(),
     createdBy: doc.createdBy ?? null,
     progress: progressMap.get(doc._id) ?? null,
+    coverImageUrl: doc.coverImageUrl ?? null,
   }));
 }
 
@@ -135,7 +138,12 @@ export default async function BooksPage() {
                 key={book.id}
                 className="flex flex-col gap-4 rounded-3xl border border-slate-100 bg-white/90 p-5 shadow-sm transition hover:-translate-y-1 hover:border-sky-100 hover:shadow-lg"
               >
-                <PdfThumbnail fileUrl={book.pdfUrl} title={book.title} />
+                <PdfThumbnail
+                  bookId={book.id}
+                  fileUrl={book.pdfUrl}
+                  title={book.title}
+                  coverUrl={book.coverImageUrl ? `${BASE_PATH}${book.coverImageUrl}` : undefined}
+                />
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="text-xl font-semibold text-slate-900">{book.title}</h3>
