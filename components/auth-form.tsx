@@ -84,7 +84,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
               value={form.name}
               onChange={handleChange}
               required
-              placeholder="Winnie Manuela"
+              placeholder="Kadek Prox"
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
             />
           </div>
@@ -97,7 +97,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             value={form.email}
             onChange={handleChange}
             required
-            placeholder="winnie@example.com"
+            placeholder="prox@example.com"
             className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
           />
         </div>

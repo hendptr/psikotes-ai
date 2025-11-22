@@ -6,15 +6,15 @@ export const dynamic = "force-dynamic";
 const highlights = [
   {
     title: "Soal adaptif",
-    description: "Tsuki ga kirei desu ne Winnie chan, jadi soal soal selaluu freshh.",
+    description: "Soal soal selaluu freshh.",
   },
   {
     title: "Statistik",
-    description: "I love u Winniee, ada statistiknya rapi biar kamu gampang lihat progres tiap sesi",
+    description: "Ada statistiknya rapi biar kamu gampang lihat progres tiap sesi",
   },
   {
-    title: "Love U Winnieeeeee",
-    description: "Winniee wa totemo utsukushi desu",
+    title: "Buku latihan",
+    description: "Kamu bisa latihan soal soal yang pernah kamu kerjain di sesi sebelumnya",
   },
 ];
 
@@ -26,10 +26,9 @@ export default async function LandingPage() {
       <section className="rounded-3xl border border-slate-200 bg-white p-10 shadow-lg">
         <div className="mx-auto grid max-w-4xl gap-6 text-center">
           <h1 className="text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
-            Winniee Cantikk Woy!
+            Hiii Hello!
           </h1>
           <p className="text-base leading-relaxed text-slate-600">
-            Winnie wa totemoooo utsukushii desu ne! 
           </p>
         </div>
       </section>

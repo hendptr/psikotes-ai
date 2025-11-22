@@ -104,8 +104,8 @@ export default async function BooksPage() {
       <section className="overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-slate-50 p-6 shadow-sm">
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-sky-600">Perpustakaan Winnieee!</p>
-            <h1 className="text-3xl font-semibold text-slate-900">Baca Buku Digital Untuk Winnie yang Paling Cantik!</h1>
+            <p className="text-xs uppercase tracking-[0.3em] text-sky-600">Perpustakaan!</p>
+            <h1 className="text-3xl font-semibold text-slate-900">Baca Buku Digital!</h1>
             <p className="text-sm leading-relaxed text-slate-600">
               Semua PDF yang diunggah akan langsung tersedia untuk seluruh pengguna.
             </p>

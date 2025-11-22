@@ -67,7 +67,7 @@ export default async function SessionPage({
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
               Sesi latihan psikotes
             </p>
-            <h1 className="text-2xl font-semibold text-slate-900">Ayo bisaa, Winnie!</h1>
+            <h1 className="text-2xl font-semibold text-slate-900">Ayo bisaa!!!!</h1>
           </div>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-slate-600">

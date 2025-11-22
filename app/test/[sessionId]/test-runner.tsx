@@ -629,8 +629,8 @@ export default function TestRunner({ session }: TestRunnerProps) {
             {accuracy >= 80
               ? "Wow! KERENNNNNNNNNN, SS dan ku traktir eskrim!"
               : accuracy >= 60
-              ? "Winnie winniiee lovee uuuuu"
-              : "Lovee u Winniee!!."}
+              ? "Wow kerenn"
+              : "OK."}
           </p>
         </div>
         {isComplete && completion.status === "completed" && (

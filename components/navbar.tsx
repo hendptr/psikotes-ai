@@ -25,9 +25,9 @@ export default function Navbar({ user }: NavbarProps) {
             WL
           </span>
           <div className="leading-tight">
-            <p className="text-base font-semibold text-sky-900">Winnie Cantik</p>
+            <p className="text-base font-semibold text-sky-900">Hello!</p>
             <p className="text-[11px] uppercase tracking-[0.28em] text-sky-400">
-              Winnie Cantikk Lovee u Winniee!
+              Ganbatte!
             </p>
           </div>
         </Link>

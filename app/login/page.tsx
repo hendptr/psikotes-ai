@@ -12,7 +12,7 @@ export default async function LoginPage() {
     <div className="grid gap-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-lg lg:grid-cols-2">
       <div className="space-y-4">
         <span className="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs uppercase tracking-[0.3em] text-slate-500">
-          Welcome back Winnie Chan!
+          Welcome back
         </span>
         <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
           lanjutkan latihan psikotes
@@ -20,7 +20,6 @@ export default async function LoginPage() {
         <p className="text-sm leading-relaxed text-slate-600">
           Masuk dan kerjakanlahhh, ada progress tracker, analitik per kategori
         </p>
-        <p className="text-xs text-slate-500">Belum punya akun? berarti gboleh pke y, only for winnie</p>
       </div>
       <AuthForm mode="login" />
     </div>

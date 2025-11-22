@@ -75,12 +75,12 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
   const book = await getBook(resolvedParams.bookId);
   if (!book) {
     return {
-      title: "Buku tidak ditemukan - Perpustakaan Winnie",
+      title: "Buku tidak ditemukan - Perpustakaan",
     };
   }
   return {
-    title: `${book.title} - Perpustakaan Winnie`,
-    description: book.description || "Baca buku digital langsung dari perpustakaan publik Winnie.",
+    title: `${book.title} - Perpustakaan`,
+    description: book.description || "Baca buku digital langsung dari perpustakaan publik.",
   };
 }
 

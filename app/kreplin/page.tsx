@@ -26,7 +26,7 @@ export default async function KreplinPage() {
             <p className="text-sm leading-relaxed text-slate-600">
               Pilih mode latihan ringan atau langsung simulasi 60 kolom ala tes kerja asli. Hasilnya
               disimpan otomatis lengkap dengan grafik per kolom dan kecepatan per menit supaya
-              bisa memantau perkembangan winniee.
+              bisa memantau perkembangan.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link

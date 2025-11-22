@@ -12,7 +12,7 @@ const fontSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Winniee Cantikkkkk!!!",
+  title: "Psikotes AI - Tes Psikologi Adaptif",
   description:
     "Tsuki ga kirei desu ne!",
 };
@@ -37,8 +37,8 @@ export default async function RootLayout({
             </main>
             <footer className="border-t border-slate-200 bg-white/90">
               <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 text-xs text-slate-500 sm:px-6 lg:px-8">
-                <p>I love uu Winnie!</p>
-                <span>Winnie Cantik</span>
+                <p>Hi!</p>
+                <span>TMMIN Psikotes</span>
               </div>
             </footer>
           </div>
