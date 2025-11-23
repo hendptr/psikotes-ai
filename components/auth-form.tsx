@@ -71,8 +71,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
       </h1>
       <p className="mt-2 text-sm text-slate-600">
         {mode === "login"
-          ? "Masukkan email dan password kamu. Kami siap menyimpan setiap progres gemasmu."
-          : "Satu langkah lagi untuk punya dashboard psikotes paling adorable sedunia."}
+          ? "Masukkan email dan password Anda. Kami bantu simpan dan sinkronkan setiap progres latihan."
+          : "Lengkapi data untuk membuka dashboard psikotes dengan analitik realtime dan materi terkurasi."}
       </p>
 
       <div className="mt-6 space-y-4">
@@ -84,20 +84,20 @@ export default function AuthForm({ mode }: AuthFormProps) {
               value={form.name}
               onChange={handleChange}
               required
-              placeholder="Winnie Manuela"
+              placeholder="Alya Pratama"
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
             />
           </div>
         )}
         <div>
           <label className="text-xs uppercase tracking-[0.3em] text-slate-500">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-            placeholder="winnie@example.com"
+            <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              placeholder="belajar@example.com"
             className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
           />
         </div>

@@ -46,7 +46,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Buku tidak ditemukan." }, { status: 404 });
     }
 
-    if (book.createdBy && book.createdBy !== user.id) {
+    const isOwner = !book.createdBy || book.createdBy === user.id;
+    const isAdmin = user.role === "admin";
+    if (!isOwner && !isAdmin) {
       return NextResponse.json({ error: "Tidak diizinkan menghapus buku ini." }, { status: 403 });
     }
 

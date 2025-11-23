@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 type BookDetail = Pick<
   BookDocument,
   "id" | "title" | "author" | "description" | "fileSize" | "createdAt"
-> & { pdfUrl: string };
+> & { pdfUrl: string; createdBy: string | null; isPublic: boolean };
 
 const getBook = cache(async (bookId: string): Promise<BookDetail | null> => {
   await connectMongo();
@@ -26,6 +26,8 @@ const getBook = cache(async (bookId: string): Promise<BookDetail | null> => {
     pdfUrl: string;
     fileSize: number;
     createdAt: Date;
+    createdBy?: string | null;
+    isPublic?: boolean;
   }>();
 
   if (!doc) {
@@ -40,6 +42,8 @@ const getBook = cache(async (bookId: string): Promise<BookDetail | null> => {
     pdfUrl: `${BASE_PATH}/api/books/${doc._id}/file`,
     fileSize: doc.fileSize,
     createdAt: doc.createdAt,
+    createdBy: doc.createdBy ?? null,
+    isPublic: doc.isPublic !== false,
   };
 });
 
@@ -75,12 +79,18 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
   const book = await getBook(resolvedParams.bookId);
   if (!book) {
     return {
-      title: "Buku tidak ditemukan - Perpustakaan Winnie",
+      title: "Buku tidak ditemukan - Perpustakaan Digital",
+    };
+  }
+  if (!book.isPublic) {
+    return {
+      title: "Buku privat - Perpustakaan Digital",
+      description: "Konten ini hanya tersedia untuk pemilik atau admin.",
     };
   }
   return {
-    title: `${book.title} - Perpustakaan Winnie`,
-    description: book.description || "Baca buku digital langsung dari perpustakaan publik Winnie.",
+    title: `${book.title} - Perpustakaan Digital`,
+    description: book.description || "Baca buku digital langsung dari perpustakaan publik Psikotes AI.",
   };
 }
 
@@ -125,6 +135,11 @@ export default async function BookDetailPage({ params }: BookPageProps) {
     notFound();
   }
   const user = await getCurrentUserFromCookies();
+  const canAccess =
+    book.isPublic || (user && (user.role === "admin" || user.id === book.createdBy));
+  if (!canAccess) {
+    notFound();
+  }
   const progress = await fetchProgress(book.id, user?.id);
   const annotations = await fetchAnnotations(book.id, user?.id);
 
@@ -145,6 +160,22 @@ export default async function BookDetailPage({ params }: BookPageProps) {
         <h1 className="text-3xl font-semibold text-slate-900">{book.title}</h1>
         <p className="text-sm text-slate-500">{book.author || "Anonim"}</p>
         <p className="max-w-3xl text-base text-slate-600">{book.description || "Tidak ada deskripsi."}</p>
+        <div className="mt-2 inline-flex items-center gap-2 text-xs text-slate-500">
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 font-semibold ${
+              book.isPublic ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+            }`}
+          >
+            {book.isPublic ? "Publik" : "Privat"}
+          </span>
+          {!book.isPublic && (
+            <span>
+              {user?.role === "admin" || user?.id === book.createdBy
+                ? "Hanya terlihat oleh tim hingga diterbitkan."
+                : null}
+            </span>
+          )}
+        </div>
       </div>
 
       {user ? (

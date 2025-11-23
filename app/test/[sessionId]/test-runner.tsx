@@ -624,13 +624,13 @@ export default function TestRunner({ session }: TestRunnerProps) {
           </div>
         </div>
         <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-lg">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Catatan dari Kedak</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Catatan pelatih</p>
           <p className="mt-4 leading-relaxed">
             {accuracy >= 80
-              ? "Wow! KERENNNNNNNNNN, SS dan ku traktir eskrim!"
+              ? "Akurasi Anda sangat baik. Pertahankan ritme dan mulai eksplorasi variasi soal yang lebih menantang."
               : accuracy >= 60
-              ? "Winnie winniiee lovee uuuuu"
-              : "Lovee u Winniee!!."}
+              ? "Performa sudah stabil, namun masih ada ruang untuk meningkatkan kecepatan pengambilan keputusan."
+              : "Gunakan waktu review untuk memahami pola kesalahan dan susun ulang strategi latihan berikutnya."}
           </p>
         </div>
         {isComplete && completion.status === "completed" && (

@@ -96,6 +96,7 @@ export async function POST(req: NextRequest) {
         originalFileName: file.name || `${safeName}.pdf`,
         fileSize: fileBuffer.length,
         createdBy: user.id,
+        isPublic: false,
       },
     ]);
 

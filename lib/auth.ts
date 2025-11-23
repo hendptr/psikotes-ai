@@ -27,6 +27,9 @@ export type PublicUser = {
   email: string;
   name: string | null;
   createdAt: Date;
+  role: "user" | "admin";
+  membershipType: "member" | "non_member";
+  membershipExpiresAt: Date | null;
 };
 
 export async function hashPassword(password: string): Promise<string> {
@@ -60,6 +63,9 @@ async function fetchUserById(userId: string): Promise<PublicUser | null> {
     email: string;
     name: string | null;
     createdAt: Date;
+    role?: "user" | "admin";
+    membershipType?: "member" | "non_member";
+    membershipExpiresAt?: Date | null;
   }>();
 
   if (!user) {
@@ -71,6 +77,9 @@ async function fetchUserById(userId: string): Promise<PublicUser | null> {
     email: user.email,
     name: user.name ?? null,
     createdAt: user.createdAt,
+    role: user.role ?? "user",
+    membershipType: user.membershipType ?? "non_member",
+    membershipExpiresAt: user.membershipExpiresAt ?? null,
   };
 }
 

@@ -17,6 +17,7 @@ type BookListItem = Pick<
   createdAt: string;
   createdBy: string | null;
   pdfUrl: string;
+  isPublic: boolean;
   progress?: {
     status: string;
     lastPage: number;
@@ -24,10 +25,19 @@ type BookListItem = Pick<
   coverImageUrl?: string | null;
 };
 
-async function fetchBooks(userId?: string | null): Promise<BookListItem[]> {
+async function fetchBooks(
+  userId?: string | null,
+  role: "user" | "admin" = "user"
+): Promise<BookListItem[]> {
   await connectMongo();
+  const visibilityFilter =
+    role === "admin"
+      ? {}
+      : userId
+      ? { $or: [{ isPublic: { $ne: false } }, { createdBy: userId }] }
+      : { isPublic: { $ne: false } };
   const [docs, progresses] = await Promise.all([
-    BookModel.find()
+    BookModel.find(visibilityFilter)
       .sort({ createdAt: -1 })
       .lean<
         Array<{
@@ -40,6 +50,7 @@ async function fetchBooks(userId?: string | null): Promise<BookListItem[]> {
           createdAt: Date;
           createdBy?: string | null;
           coverImageUrl?: string | null;
+          isPublic?: boolean;
         }>
       >(),
     userId
@@ -59,6 +70,7 @@ async function fetchBooks(userId?: string | null): Promise<BookListItem[]> {
     fileSize: doc.fileSize,
     createdAt: doc.createdAt?.toISOString?.() ?? new Date().toISOString(),
     createdBy: doc.createdBy ?? null,
+    isPublic: doc.isPublic !== false,
     progress: progressMap.get(doc._id) ?? null,
     coverImageUrl: doc.coverImageUrl ?? null,
   }));
@@ -91,27 +103,27 @@ function formatDate(value: string) {
 function progressLabel(progress?: BookListItem["progress"]) {
   if (!progress) return "Belum dimulai";
   if (progress.status === "completed") return "Selesai dibaca";
-  if (progress.status === "reading") return `Sedang dibaca · Hal ${progress.lastPage}`;
+  if (progress.status === "reading") return `Sedang dibaca - Hal ${progress.lastPage}`;
   return "Belum dimulai";
 }
 
 export default async function BooksPage() {
   const user = await getCurrentUserFromCookies();
-  const books = await fetchBooks(user?.id ?? null);
+  const books = await fetchBooks(user?.id ?? null, user?.role ?? "user");
 
   return (
     <div className="space-y-10">
       <section className="overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-slate-50 p-6 shadow-sm">
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-sky-600">Perpustakaan Winnieee!</p>
-            <h1 className="text-3xl font-semibold text-slate-900">Baca Buku Digital Untuk Winnie yang Paling Cantik!</h1>
+            <p className="text-xs uppercase tracking-[0.3em] text-sky-600">Perpustakaan digital</p>
+            <h1 className="text-3xl font-semibold text-slate-900">Referensi psikotes siap pakai</h1>
             <p className="text-sm leading-relaxed text-slate-600">
-              Semua PDF yang diunggah akan langsung tersedia untuk seluruh pengguna.
+              Semua PDF yang diunggah akan tersedia bagi seluruh pengguna sehingga tim belajar dari sumber yang sama.
             </p>
             <ul className="text-sm text-slate-500">
-              <li>- Unggah file PDF hingga 100MB.</li>
-              <li>- Siap dibaca lewat penampil PDF yang nyaman.</li>
+              <li>- Unggah file PDF hingga 100MB secara aman.</li>
+              <li>- Baca langsung lewat workspace anotasi interaktif.</li>
             </ul>
           </div>
           <BookUploadForm canUpload={Boolean(user)} />
@@ -149,9 +161,20 @@ export default async function BooksPage() {
                     <h3 className="text-xl font-semibold text-slate-900">{book.title}</h3>
                     <span className="text-xs text-slate-400">{formatBytes(book.fileSize)}</span>
                   </div>
-                  <span className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-600">
-                    {progressLabel(book.progress)}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-600">
+                      {progressLabel(book.progress)}
+                    </span>
+                    <span
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                        book.isPublic
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-amber-50 text-amber-700"
+                      }`}
+                    >
+                      {book.isPublic ? "Publik" : "Privat"}
+                    </span>
+                  </div>
                   <p className="text-sm font-medium text-slate-500">
                     {book.author || "Anonim"} - Diunggah {formatDate(book.createdAt)}
                   </p>
@@ -182,7 +205,7 @@ export default async function BooksPage() {
                   >
                     Unduh
                   </a>
-                  {user && user.id === book.createdBy && (
+                  {user && (user.id === book.createdBy || user.role === "admin") && (
                     <BookDeleteButton bookId={book.id} bookTitle={book.title} />
                   )}
                 </div>
@@ -194,3 +217,4 @@ export default async function BooksPage() {
     </div>
   );
 }
+

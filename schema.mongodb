@@ -1,4 +1,4 @@
-﻿// MongoDB schema definition for Winnie's Psikotes Lab.
+// MongoDB schema definition for the Psikotes AI platform.
 // Use with Prisma or Mongoose migrations as a reference when provisioning the database.
 //
 // Users collection
@@ -7,6 +7,9 @@
 //   email: string (unique, lower-cased)
 //   name: string | null
 //   passwordHash: string (bcrypt hash)
+//   role: "user" | "admin"
+//   membershipType: "member" | "non_member"
+//   membershipExpiresAt: ISODate | null
 //   createdAt: ISODate
 // }
 //
@@ -63,6 +66,24 @@
 //   explanation: string;
 // }
 
+// Books collection
+// {
+//   _id: string;
+//   title: string;
+//   author: string;
+//   description: string;
+//   pdfPath: string;
+//   pdfUrl: string;
+//   originalFileName: string;
+//   fileSize: number;
+//   coverImagePath: string | null;
+//   coverImageUrl: string | null;
+//   createdBy: string | null (ref -> users._id);
+//   isPublic: boolean;
+//   createdAt: ISODate;
+//   updatedAt: ISODate;
+// }
+
 // KreplinResults collection
 // {
 //   _id: string;
@@ -79,5 +100,6 @@
 //   createdAt: ISODate;
 //   updatedAt: ISODate;
 // }
+
 
 

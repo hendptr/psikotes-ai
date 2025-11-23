@@ -4,11 +4,12 @@ import { stat } from "fs/promises";
 import { Readable } from "stream";
 import { connectMongo } from "@/lib/MongoDB";
 import { BookModel } from "@/lib/models";
+import { getCurrentUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ bookId: string }> }
 ) {
   const { bookId } = await params;
@@ -23,10 +24,20 @@ export async function GET(
       pdfPath?: string | null;
       title?: string;
       originalFileName?: string;
+      createdBy?: string | null;
+      isPublic?: boolean;
     }>();
 
     if (!book?.pdfPath) {
       return NextResponse.json({ error: "File buku tidak ditemukan." }, { status: 404 });
+    }
+
+    const user = await getCurrentUser(req);
+    const isPublic = book.isPublic !== false;
+    const isOwner = book.createdBy ? user?.id === book.createdBy : true;
+    const isAdmin = user?.role === "admin";
+    if (!isPublic && !isOwner && !isAdmin) {
+      return NextResponse.json({ error: "Tidak diizinkan mengakses file ini." }, { status: 403 });
     }
 
     const fileStats = await stat(book.pdfPath);

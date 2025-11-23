@@ -44,6 +44,21 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+      index: true,
+    },
+    membershipType: {
+      type: String,
+      enum: ["member", "non_member"],
+      default: "non_member",
+    },
+    membershipExpiresAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     collection: "users",
@@ -370,6 +385,11 @@ const bookSchema = new Schema(
       type: String,
       default: null,
       ref: "User",
+    },
+    isPublic: {
+      type: Boolean,
+      default: false,
+      index: true,
     },
   },
   {

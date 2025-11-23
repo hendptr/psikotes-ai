@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import type { PublicUser } from "@/lib/auth";
 import Sidebar from "./sidebar";
 
-type SidebarUser = Pick<PublicUser, "id" | "email" | "name">;
+type SidebarUser = Pick<PublicUser, "id" | "email" | "name" | "role" | "membershipType"> & {
+  membershipExpiresAt: string | null;
+};
 
 type AppShellProps = {
   user: SidebarUser | null;
@@ -15,6 +17,7 @@ export default function AppShell({ user, children }: AppShellProps) {
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const hasSidebar = Boolean(user);
+  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     if (!mobileSidebarOpen || !hasSidebar) {
@@ -71,9 +74,9 @@ export default function AppShell({ user, children }: AppShellProps) {
                 </button>
               )}
               <div>
-                <p className="text-sm font-semibold text-slate-900">I Love U Winnie</p>
+                <p className="text-sm font-semibold text-slate-900">Psikotes AI</p>
                 <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">
-                  Fokus & progres harian
+                  Platform latihan psikotes
                 </p>
               </div>
             </div>
@@ -95,8 +98,8 @@ export default function AppShell({ user, children }: AppShellProps) {
 
         <footer className="border-t border-slate-200 bg-white/90">
           <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4 text-xs text-slate-500 sm:px-6 lg:px-10">
-            <p>I love uu Winnie!</p>
-            <span>Winnie Cantik</span>
+            <p>© {currentYear} Psikotes AI</p>
+            <span>Latihan psikotes profesional</span>
           </div>
         </footer>
       </div>

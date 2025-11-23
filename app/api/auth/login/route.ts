@@ -27,6 +27,9 @@ export async function POST(req: NextRequest) {
       email: string;
       name: string | null;
       passwordHash: string;
+      role?: "user" | "admin";
+      membershipType?: "member" | "non_member";
+      membershipExpiresAt?: Date | null;
     }>();
 
     if (!user) {
@@ -60,6 +63,9 @@ export async function POST(req: NextRequest) {
         id: user._id,
         email: user.email,
         name: user.name ?? null,
+        role: user.role ?? "user",
+        membershipType: user.membershipType ?? "non_member",
+        membershipExpiresAt: user.membershipExpiresAt ?? null,
       },
     });
   } catch (error) {

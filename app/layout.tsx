@@ -12,9 +12,8 @@ const fontSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Winniee Cantikkkkk!!!",
-  description:
-    "Tsuki ga kirei desu ne!",
+  title: "Psikotes AI - Platform Latihan Psikotes Profesional",
+  description: "Kelola sesi latihan adaptif, statistik mendalam, dan perpustakaan materi psikotes.",
 };
 
 export default async function RootLayout({
@@ -23,11 +22,29 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUserFromCookies();
+  const membershipExpiresAt = (() => {
+    if (!user?.membershipExpiresAt) return null;
+    if (user.membershipExpiresAt instanceof Date) {
+      return Number.isNaN(user.membershipExpiresAt.getTime())
+        ? null
+        : user.membershipExpiresAt.toISOString();
+    }
+    try {
+      const parsed = new Date(user.membershipExpiresAt as string);
+      return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+    } catch {
+      return null;
+    }
+  })();
+
   const sidebarUser = user
     ? {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
+        membershipType: user.membershipType,
+        membershipExpiresAt,
       }
     : null;
 

@@ -6,15 +6,15 @@ export const dynamic = "force-dynamic";
 const highlights = [
   {
     title: "Soal adaptif",
-    description: "Tsuki ga kirei desu ne Winnie chan, jadi soal soal selaluu freshh.",
+    description: "Bank soal diperbarui berkala agar latihan tetap relevan dengan kebutuhan seleksi.",
   },
   {
     title: "Statistik",
-    description: "I love u Winniee, ada statistiknya rapi biar kamu gampang lihat progres tiap sesi",
+    description: "Pantau akurasi, kecepatan, dan distribusi jawaban secara realtime di setiap sesi.",
   },
   {
-    title: "Love U Winnieeeeee",
-    description: "Winniee wa totemo utsukushi desu",
+    title: "Rencana belajar",
+    description: "Bangun kebiasaan dengan rekomendasi latihan terjadwal dan target yang jelas.",
   },
 ];
 
@@ -26,10 +26,10 @@ export default async function LandingPage() {
       <section className="rounded-3xl border border-slate-200 bg-white p-10 shadow-lg">
         <div className="mx-auto grid max-w-4xl gap-6 text-center">
           <h1 className="text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
-            Winnie, I love you, always. You're my everything to me now ❤︎
+            Platform latihan psikotes profesional untuk membangun kesiapan karier.
           </h1>
           <p className="text-base leading-relaxed text-slate-600">
-            - Kadek 11/15/2025
+            Rancang sesi adaptif, ukur performa, dan kelola materi pembelajaran dalam satu tempat.
           </p>
         </div>
       </section>

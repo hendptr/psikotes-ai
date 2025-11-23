@@ -42,6 +42,9 @@ export async function POST(req: NextRequest) {
       email: normalizedEmail,
       name: name ?? null,
       passwordHash,
+      role: "user",
+      membershipType: "non_member",
+      membershipExpiresAt: null,
     });
 
     const token = signJwt({ userId: newUser.id });
@@ -53,6 +56,9 @@ export async function POST(req: NextRequest) {
           id: newUser.id,
           email: newUser.email,
           name: newUser.name ?? null,
+          role: newUser.role ?? "user",
+          membershipType: newUser.membershipType ?? "non_member",
+          membershipExpiresAt: newUser.membershipExpiresAt,
         },
       },
       { status: 201 }
