@@ -62,6 +62,10 @@ function TesKoran() {
   const searchParams = useSearchParams();
   const mode = (searchParams.get("mode") as TestMode) ?? "auto";
   const isTryout = mode === "tryout";
+  const duelId = searchParams.get("duelId");
+  const duelRole = searchParams.get("role") as "host" | "guest" | null;
+  const duelStartAtParam = searchParams.get("startAt");
+  const duelStartAtMs = duelStartAtParam ? parseInt(duelStartAtParam, 10) : null;
 
   const minutesParam = searchParams.get("minutes");
   const durationParam = searchParams.get("duration");
@@ -80,8 +84,19 @@ function TesKoran() {
 
   const [isTestRunning, setIsTestRunning] = useState(false);
   const [resultsLog, setResultsLog] = useState<ResultLog[]>([]);
-  const [startTime, setStartTime] = useState<number>(Date.now());
-  const [totalTimeLeft, setTotalTimeLeft] = useState(initialDuration);
+  const duelElapsedSeconds = useMemo(() => {
+    if (!duelStartAtMs) return 0;
+    const now = Date.now();
+    return Math.max(0, Math.floor((now - duelStartAtMs) / 1000));
+  }, [duelStartAtMs]);
+
+  const initialRemaining = useMemo(() => {
+    if (isTryout) return initialDuration;
+    return Math.max(0, initialDuration - duelElapsedSeconds);
+  }, [initialDuration, duelElapsedSeconds, isTryout]);
+
+  const [startTime, setStartTime] = useState<number>(duelStartAtMs ?? Date.now());
+  const [totalTimeLeft, setTotalTimeLeft] = useState(initialRemaining);
   const [sectionTimeLeft, setSectionTimeLeft] = useState(TRYOUT_TIME_PER_SECTION);
   const [currentSection, setCurrentSection] = useState(1);
   const [showSectionModal, setShowSectionModal] = useState(false);
@@ -135,7 +150,7 @@ function TesKoran() {
   }, [currentSection, isTryout]);
 
   useEffect(() => {
-    startTest();
+    startTest({ startAt: duelStartAtMs ?? Date.now(), remaining: initialRemaining });
     const updateQueueCount = () => setPendingOfflineCount(getOfflineKreplinQueue().length);
     updateQueueCount();
 
@@ -173,9 +188,12 @@ function TesKoran() {
     setNextBottomNumber(Math.floor(Math.random() * 10));
   };
 
-  const startTest = () => {
+  const startTest = (opts?: { startAt?: number; remaining?: number }) => {
     setIsTestRunning(true);
-    setStartTime(Date.now());
+    setStartTime(opts?.startAt ?? Date.now());
+    if (typeof opts?.remaining === "number") {
+      setTotalTimeLeft(opts.remaining);
+    }
     setSaving(false);
     hasEndedRef.current = false;
     resetNumbersForNewSection();
@@ -214,6 +232,8 @@ function TesKoran() {
       id: `offline-${Date.now()}`,
       createdAt: new Date().toISOString(),
       ...payload,
+      duelId,
+      duelRole,
     };
 
     const fallbackToOffline = () => {
@@ -235,7 +255,21 @@ function TesKoran() {
         throw new Error("Gagal menyimpan hasil.");
       }
       const json = await response.json();
-      router.push(`/kreplin/results?resultId=${json.resultId}`);
+      if (duelId && duelRole) {
+        void fetch(`/api/kreplin-duels/${duelId}/submit`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            resultId: json.resultId,
+            totalCorrect,
+            totalAnswered,
+            accuracy,
+          }),
+        }).catch((err) => console.error("Submit duel result error:", err));
+      }
+      router.push(
+        `/kreplin/results?resultId=${json.resultId}${duelId ? `&duel=${duelId}` : ""}`
+      );
     } catch (error) {
       console.error(error);
       fallbackToOffline();

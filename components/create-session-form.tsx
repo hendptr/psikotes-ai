@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -144,6 +144,7 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
   const [customSeconds, setCustomSeconds] = useState<number>(MODE_OPTIONS[0].defaultSeconds);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [duelMode, setDuelMode] = useState(false);
 
   const activeMode = useMemo(
     () => MODE_OPTIONS.find((mode) => mode.value === userType) ?? MODE_OPTIONS[0],
@@ -182,18 +183,24 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
     const recoveryCriteria = { count, userType, category, difficulty };
 
     try {
-      const payload: Record<string, unknown> = {
-        userType,
-        category,
-        difficulty,
-        count,
-      };
+      const payload: Record<string, unknown> = duelMode
+        ? {
+            type: "generated",
+            userType,
+            category,
+            difficulty,
+            count,
+            ...(useCustomTimer ? { customDurationSeconds: customSeconds } : {}),
+          }
+        : {
+            userType,
+            category,
+            difficulty,
+            count,
+            ...(useCustomTimer ? { customDurationSeconds: customSeconds } : {}),
+          };
 
-      if (useCustomTimer) {
-        payload.customDurationSeconds = customSeconds;
-      }
-
-      const response = await fetch(`${API_BASE}/test-sessions`, {
+      const response = await fetch(`${API_BASE}/${duelMode ? "test-duels" : "test-sessions"}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -214,7 +221,13 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
       }
 
       const json = await response.json();
-      router.push(`/test/${json.sessionId}`);
+      if (duelMode) {
+        router.push(
+          `/test/${json.sessionId}?duelId=${json.duel.id}&role=host&room=${json.duel.roomCode}`
+        );
+      } else {
+        router.push(`/test/${json.sessionId}`);
+      }
     } catch (err) {
       const recovered = await waitForRecoveredSession({
         attemptStartedAt,
@@ -418,23 +431,33 @@ export default function CreateSessionForm({ isAuthenticated }: CreateSessionForm
       <div className="mt-6 flex flex-wrap items-center gap-4 rounded-2xl border border-slate-100 bg-white/90 px-5 py-4">
         <div className="min-w-[220px] flex-1 text-xs text-slate-500">
           <p className="text-sm font-semibold text-slate-900">
-            Mode {activeMode.label} • {timerLabel}
+            Mode {activeMode.label} - {timerLabel}
           </p>
           <p className="mt-1 text-slate-500">
-            {activeCategoryLabel} • {activeDifficultyLabel} • {count} soal
+            {activeCategoryLabel} - {activeDifficultyLabel} - {count} soal
           </p>
         </div>
+        <label className="flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700">
+          <input
+            type="checkbox"
+            checked={duelMode}
+            onChange={(event) => setDuelMode(event.target.checked)}
+            className="accent-emerald-600"
+          />
+          Duel (1v1)
+        </label>
         <button
           type="button"
           onClick={handleStart}
           disabled={loading}
           className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300 disabled:opacity-70"
         >
-          {loading ? "Menyiapkan soal..." : "Mulai Latihan"}
-          <span aria-hidden className="text-lg">{">"}</span>
+          {loading ? "Menyiapkan..." : duelMode ? "Mulai Duel" : "Mulai Latihan"}
+          <span aria-hidden className="text-lg">{" >"}</span>
         </button>
       </div>
     </div>
   );
 }
+
 

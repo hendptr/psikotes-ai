@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { connectMongo } from "@/lib/MongoDB";
 import { AnswerModel, TestSessionModel } from "@/lib/models";
+import { submitTestDuelResult } from "@/lib/test-duel";
 import { getCurrentUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -27,6 +28,7 @@ export async function POST(
     }).lean<{
       _id: string;
       questionCount: number;
+      duelId?: string | null;
     }>();
 
     if (!session) {
@@ -66,6 +68,18 @@ export async function POST(
         },
       }
     );
+
+    if (session.duelId) {
+      try {
+        await submitTestDuelResult(session.duelId, user.id, {
+          score: accuracy,
+          answered: totals.total,
+          correct: totals.correct,
+        });
+      } catch (err) {
+        console.error("Submit test duel result error:", err);
+      }
+    }
 
     return NextResponse.json({
       ok: true,

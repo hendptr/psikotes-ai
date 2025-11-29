@@ -25,6 +25,9 @@ type SessionPayload = {
   startedAt: string;
   completedAt: string | null;
   score: number | null;
+   duelId: string | null;
+   duelRole: string | null;
+   duelRoomCode: string | null;
   questions: PsychotestQuestion[];
   answers: SerializableAnswer[];
   isDraft: boolean;
@@ -431,15 +434,30 @@ export default function TestRunner({ session }: TestRunnerProps) {
       : pendingSaves > 0
       ? "Menyimpan jawaban..."
       : "Selesaikan sesi";
+  const isDuel = Boolean(session.duelId);
+  const duelRoleLabel =
+    session.duelRole === "host" ? "Host" : session.duelRole === "guest" ? "Guest" : "Peserta";
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
-      <div className="space-y-6">
-        <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-lg">
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>
-              Soal {currentIndex + 1} dari {totalQuestions}
-            </span>
+    <div className="space-y-4">
+      {isDuel && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow">
+          <p className="font-semibold">Duel mode - {duelRoleLabel}</p>
+          {session.duelRoomCode && (
+            <p className="text-xs text-emerald-700">
+              Bagikan kode duel: <span className="font-mono font-semibold">{session.duelRoomCode}</span>
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-lg">
+            <div className="flex items-center justify-between text-xs text-slate-500">
+              <span>
+                Soal {currentIndex + 1} dari {totalQuestions}
+              </span>
             <span>{Math.round(progressValue)}% progress</span>
           </div>
           <div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-slate-200">
@@ -612,40 +630,41 @@ export default function TestRunner({ session }: TestRunnerProps) {
             </p>
           )}
         </div>
-      </div>
+        </div>
 
-      <aside className="space-y-4">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-lg">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Progress kamu</p>
-          <div className="mt-4 space-y-3">
-            <SummaryStat label="Soal dijawab" value={`${totalAnswered}/${totalQuestions}`} />
-            <SummaryStat label="Benar" value={`${correctCount} soal`} />
-            <SummaryStat label="Akurasi" value={formatPercentage(accuracy)} />
+        <aside className="space-y-4">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-lg">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Progress kamu</p>
+            <div className="mt-4 space-y-3">
+              <SummaryStat label="Soal dijawab" value={`${totalAnswered}/${totalQuestions}`} />
+              <SummaryStat label="Benar" value={`${correctCount} soal`} />
+              <SummaryStat label="Akurasi" value={formatPercentage(accuracy)} />
+            </div>
           </div>
-        </div>
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-lg">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Catatan dari Kedak</p>
-          <p className="mt-4 leading-relaxed">
-            {accuracy >= 80
-              ? "Wow! KERENNNNNNNNNN, SS dan ku traktir eskrim!"
-              : accuracy >= 60
-              ? "Winnie winniiee lovee uuuuu"
-              : "Lovee u Winniee!!."}
-          </p>
-        </div>
-        {isComplete && completion.status === "completed" && (
-          <div className="rounded-3xl border border-slate-900/15 bg-slate-900/5 p-6 text-sm text-slate-700 shadow-lg">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-600">Sesi selesai</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-900">
-              Skor {completion.score.toFixed(1)}%
-            </h2>
-            <p className="mt-2 text-sm">
-              Jawaban benar {completion.correct} dari {completion.answered} soal. Ayo cek detailnya di
-              dashboard!
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-lg">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Catatan dari Kedak</p>
+            <p className="mt-4 leading-relaxed">
+              {accuracy >= 80
+                ? "Wow! KERENNNNNNNNNN, SS dan ku traktir eskrim!"
+                : accuracy >= 60
+                ? "Winnie winniiee lovee uuuuu"
+                : "Lovee u Winniee!!."}
             </p>
           </div>
-        )}
-      </aside>
+          {isComplete && completion.status === "completed" && (
+            <div className="rounded-3xl border border-slate-900/15 bg-slate-900/5 p-6 text-sm text-slate-700 shadow-lg">
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-600">Sesi selesai</p>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900">
+                Skor {completion.score.toFixed(1)}%
+              </h2>
+              <p className="mt-2 text-sm">
+                Jawaban benar {completion.correct} dari {completion.answered} soal. Ayo cek detailnya di
+                dashboard!
+              </p>
+            </div>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }

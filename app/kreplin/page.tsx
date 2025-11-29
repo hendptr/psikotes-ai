@@ -41,6 +41,12 @@ export default async function KreplinPage() {
               >
                 Latihan 10 menit
               </Link>
+              <Link
+                href="/kreplin/duel"
+                className="rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100"
+              >
+                Duel mode (beta)
+              </Link>
             </div>
           </div>
           <div className="space-y-5 rounded-3xl border border-slate-100 bg-slate-50 p-6">

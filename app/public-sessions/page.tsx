@@ -1,4 +1,6 @@
 import StartPublicSessionButton from "@/components/start-public-session-button";
+import StartPublicDuelButton from "@/components/start-public-duel-button";
+import JoinTestDuelCard from "@/components/join-test-duel-card";
 import { listPublicSessions } from "@/lib/test-sessions";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +41,8 @@ export default async function PublicSessionsPage() {
         </p>
       </section>
 
+      <JoinTestDuelCard />
+
       {sessions.length === 0 ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-600 shadow-lg">
           Belum ada soal publik. Publikasikan salah satu sesi pribadimu agar teman-teman dapat
@@ -65,7 +69,10 @@ export default async function PublicSessionsPage() {
                 </p>
               </div>
               <div className="mt-6">
-                <StartPublicSessionButton publicId={session.publicId} className="w-full" />
+                <div className="flex gap-2">
+                  <StartPublicSessionButton publicId={session.publicId} className="w-full" />
+                  <StartPublicDuelButton publicId={session.publicId} className="w-full" />
+                </div>
               </div>
             </article>
           ))}

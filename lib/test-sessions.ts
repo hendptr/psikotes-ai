@@ -37,6 +37,9 @@ export type SessionDetail = {
   difficulty: string;
   questionCount: number;
   customDurationSeconds: number | null;
+  duelId: string | null;
+  duelRole: string | null;
+  duelRoomCode: string | null;
   startedAt: Date;
   completedAt: Date | null;
   score: number | null;
@@ -57,6 +60,9 @@ export type SessionListEntry = {
   difficulty: string;
   questionCount: number;
   customDurationSeconds: number | null;
+  duelId: string | null;
+  duelRole: string | null;
+  duelRoomCode: string | null;
   startedAt: Date;
   completedAt: Date | null;
   score: number | null;
@@ -102,6 +108,9 @@ export async function getSessionForUser(
     customDurationSeconds: number | null;
     isPublic: boolean;
     publicId: string | null;
+    duelId: string | null;
+    duelRole: string | null;
+    duelRoomCode: string | null;
     startedAt: Date;
     completedAt: Date | null;
     score: number | null;
@@ -130,6 +139,9 @@ export async function getSessionForUser(
     difficulty: session.difficulty,
     questionCount: session.questionCount,
     customDurationSeconds: session.customDurationSeconds ?? null,
+    duelId: session.duelId ?? null,
+    duelRole: session.duelRole ?? null,
+    duelRoomCode: session.duelRoomCode ?? null,
     isPublic: session.isPublic ?? false,
     publicId: session.publicId ?? null,
     isDraft: session.isDraft ?? false,
@@ -198,6 +210,9 @@ export async function listSessionsForUser(userId: string): Promise<SessionListEn
       difficulty: session.difficulty,
       questionCount: session.questionCount,
       customDurationSeconds: session.customDurationSeconds ?? null,
+      duelId: session.duelId ?? null,
+      duelRole: session.duelRole ?? null,
+      duelRoomCode: session.duelRoomCode ?? null,
       isPublic: session.isPublic ?? false,
       publicId: session.publicId ?? null,
       isDraft: session.isDraft ?? false,

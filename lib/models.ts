@@ -87,6 +87,19 @@ const testSessionSchema = new Schema(
       type: Number,
       default: null,
     },
+    duelId: {
+      type: String,
+      default: null,
+      index: true,
+    },
+    duelRole: {
+      type: String,
+      default: null,
+    },
+    duelRoomCode: {
+      type: String,
+      default: null,
+    },
     isDraft: {
       type: Boolean,
       default: false,
@@ -318,7 +331,143 @@ const kreplinResultSchema = new Schema(
   }
 );
 
+const kreplinDuelParticipantSchema = new Schema(
+  {
+    userId: { type: String, default: null },
+    name: { type: String, default: null },
+    email: { type: String, default: null },
+    ready: { type: Boolean, default: false },
+    resultId: { type: String, default: null },
+    totalCorrect: { type: Number, default: null },
+    totalAnswered: { type: Number, default: null },
+    accuracy: { type: Number, default: null },
+  },
+  { _id: false }
+);
+
+const kreplinDuelSchema = new Schema(
+  {
+    _id: {
+      type: String,
+      default: () => randomUUID(),
+    },
+    roomCode: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    status: {
+      type: String,
+      enum: ["waiting", "ready", "active", "completed"],
+      default: "waiting",
+    },
+    mode: {
+      type: String,
+      enum: ["auto"],
+      default: "auto",
+    },
+    durationSeconds: {
+      type: Number,
+      required: true,
+      min: 60,
+    },
+    host: {
+      type: kreplinDuelParticipantSchema,
+      required: true,
+    },
+    guest: {
+      type: kreplinDuelParticipantSchema,
+      default: null,
+    },
+    startedAt: {
+      type: Date,
+      default: null,
+    },
+    endedAt: {
+      type: Date,
+      default: null,
+    },
+  },
+  {
+    collection: "kreplinDuels",
+    timestamps: true,
+  }
+);
+
 kreplinResultSchema.index({ userId: 1, createdAt: -1 });
+
+const testDuelParticipantSchema = new Schema(
+  {
+    userId: { type: String, default: null },
+    name: { type: String, default: null },
+    email: { type: String, default: null },
+    sessionId: { type: String, default: null },
+    ready: { type: Boolean, default: false },
+    score: { type: Number, default: null },
+    correct: { type: Number, default: null },
+    answered: { type: Number, default: null },
+  },
+  { _id: false }
+);
+
+const testDuelSchema = new Schema(
+  {
+    _id: {
+      type: String,
+      default: () => randomUUID(),
+    },
+    roomCode: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    status: {
+      type: String,
+      enum: ["waiting", "active", "completed"],
+      default: "waiting",
+    },
+    sourceType: {
+      type: String,
+      enum: ["public", "generated"],
+      required: true,
+    },
+    publicId: {
+      type: String,
+      default: null,
+    },
+    userType: { type: String, required: true },
+    category: { type: String, required: true },
+    difficulty: { type: String, required: true },
+    questionCount: { type: Number, required: true },
+    customDurationSeconds: { type: Number, default: null },
+    questionsJson: {
+      type: [questionSchema],
+      required: true,
+    },
+    host: {
+      type: testDuelParticipantSchema,
+      required: true,
+    },
+    guest: {
+      type: testDuelParticipantSchema,
+      default: null,
+    },
+    startedAt: {
+      type: Date,
+      default: null,
+    },
+    endedAt: {
+      type: Date,
+      default: null,
+    },
+  },
+  {
+    collection: "testDuels",
+    timestamps: true,
+  }
+);
 
 const bookSchema = new Schema(
   {
@@ -498,6 +647,8 @@ testSessionSchema.set("toJSON", toJsonTransform);
 questionInstanceSchema.set("toJSON", toJsonTransform);
 answerSchema.set("toJSON", toJsonTransform);
 kreplinResultSchema.set("toJSON", toJsonTransform);
+kreplinDuelSchema.set("toJSON", toJsonTransform);
+testDuelSchema.set("toJSON", toJsonTransform);
 bookSchema.set("toJSON", toJsonTransform);
 bookProgressSchema.set("toJSON", toJsonTransform);
 bookAnnotationSchema.set("toJSON", toJsonTransform);
@@ -517,6 +668,12 @@ export const AnswerModel =
 export const KreplinResultModel =
   models.KreplinResult ?? model("KreplinResult", kreplinResultSchema);
 
+export const KreplinDuelModel =
+  models.KreplinDuel ?? model("KreplinDuel", kreplinDuelSchema);
+
+export const TestDuelModel =
+  models.TestDuel ?? model("TestDuel", testDuelSchema);
+
 export const BookModel =
   models.Book ?? model("Book", bookSchema);
 
@@ -533,6 +690,8 @@ export type TestSessionDocument = InferSchemaType<typeof testSessionSchema> & { 
 export type QuestionInstanceDocument = InferSchemaType<typeof questionInstanceSchema> & { id: string };
 export type AnswerDocument = InferSchemaType<typeof answerSchema> & { id: string };
 export type KreplinResultDocument = InferSchemaType<typeof kreplinResultSchema> & { id: string };
+export type KreplinDuelDocument = InferSchemaType<typeof kreplinDuelSchema> & { id: string };
+export type TestDuelDocument = InferSchemaType<typeof testDuelSchema> & { id: string };
 export type BookDocument = InferSchemaType<typeof bookSchema> & { id: string };
 export type BookProgressDocument = InferSchemaType<typeof bookProgressSchema> & { id: string };
 export type BookAnnotationDocument = InferSchemaType<typeof bookAnnotationSchema> & { id: string };

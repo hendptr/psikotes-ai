@@ -1,8 +1,11 @@
 import type { KreplinResultInput } from "./kreplin";
+import type { KreplinDuelRole } from "./kreplin-duel";
 
 export type OfflineKreplinResult = KreplinResultInput & {
   id: string;
   createdAt: string;
+  duelId?: string | null;
+  duelRole?: KreplinDuelRole | null;
 };
 
 const STORAGE_KEY = "kreplinOfflineResults";
@@ -67,6 +70,18 @@ export async function syncOfflineKreplinResults() {
       if (response.ok) {
         const json = await response.json().catch(() => ({}));
         const serverId = typeof json?.resultId === "string" ? json.resultId : undefined;
+        if (serverId && item.duelId && item.duelRole) {
+          void fetch(`/api/kreplin-duels/${item.duelId}/submit`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              resultId: serverId,
+              totalCorrect: item.totalCorrect,
+              totalAnswered: item.totalAnswered,
+              accuracy: item.accuracy,
+            }),
+          }).catch((err) => console.error("Submit duel result from offline queue failed:", err));
+        }
         synced.push({ offlineId: item.id, serverId });
         continue;
       }
