@@ -3,6 +3,11 @@
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Keyboard from "@/components/kreplin/keyboard";
+import {
+  getOfflineKreplinQueue,
+  saveOfflineKreplinResult,
+  syncOfflineKreplinResults,
+} from "@/lib/kreplin-offline";
 
 type ResultLog = {
   timestamp: number;
@@ -82,6 +87,10 @@ function TesKoran() {
   const [showSectionModal, setShowSectionModal] = useState(false);
   const [manualBuffer, setManualBuffer] = useState("");
   const [saving, setSaving] = useState(false);
+  const [isOffline, setIsOffline] = useState(
+    typeof navigator !== "undefined" ? !navigator.onLine : false
+  );
+  const [pendingOfflineCount, setPendingOfflineCount] = useState(0);
   const hasEndedRef = useRef(false);
 
   useEffect(() => {
@@ -127,6 +136,33 @@ function TesKoran() {
 
   useEffect(() => {
     startTest();
+    const updateQueueCount = () => setPendingOfflineCount(getOfflineKreplinQueue().length);
+    updateQueueCount();
+
+    const handleOnline = () => {
+      setIsOffline(false);
+      void syncOfflineKreplinResults().then(({ remaining }) => {
+        setPendingOfflineCount(remaining.length);
+      });
+    };
+    const handleOffline = () => setIsOffline(true);
+
+    if (typeof window !== "undefined") {
+      if (navigator.onLine) {
+        void syncOfflineKreplinResults().then(({ remaining }) => {
+          setPendingOfflineCount(remaining.length);
+        });
+      }
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("offline", handleOffline);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -174,6 +210,21 @@ function TesKoran() {
       speedTimeline,
     };
 
+    const offlineResult = {
+      id: `offline-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      ...payload,
+    };
+
+    const fallbackToOffline = () => {
+      saveOfflineKreplinResult(offlineResult);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("kreplinFallbackResult", JSON.stringify(offlineResult));
+      }
+      setPendingOfflineCount(getOfflineKreplinQueue().length);
+      router.push(`/kreplin/results?local=${offlineResult.id}`);
+    };
+
     try {
       const response = await fetch("/api/kreplin-results", {
         method: "POST",
@@ -187,17 +238,9 @@ function TesKoran() {
       router.push(`/kreplin/results?resultId=${json.resultId}`);
     } catch (error) {
       console.error(error);
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem(
-          "kreplinFallbackResult",
-          JSON.stringify({
-            id: "local",
-            createdAt: new Date().toISOString(),
-            ...payload,
-          })
-        );
-      }
-      router.push("/kreplin/results?local=1");
+      fallbackToOffline();
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -282,6 +325,14 @@ function TesKoran() {
           </span>
         </div>
       </header>
+
+      {(isOffline || pendingOfflineCount > 0) && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {isOffline
+            ? "Mode offline: jawaban tetap disimpan lokal dan akan diunggah otomatis saat online."
+            : `Ada ${pendingOfflineCount} hasil Tes Kreplin menunggu diunggah ke server.`}
+        </div>
+      )}
 
       <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow">
         <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-500">

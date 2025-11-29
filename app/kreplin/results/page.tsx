@@ -1,8 +1,14 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ResultGraph, { type GraphDatum } from "@/components/kreplin/result-graph";
+import {
+  getOfflineKreplinQueue,
+  removeOfflineKreplinResult,
+  syncOfflineKreplinResults,
+  type OfflineKreplinResult,
+} from "@/lib/kreplin-offline";
 
 type SectionStat = { index: number; correct: number; total: number };
 type SpeedBucket = { index: number; correct: number; total: number };
@@ -25,7 +31,9 @@ export default function KreplinResultsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const resultId = searchParams.get("resultId");
-  const useLocal = searchParams.get("local") === "1";
+  const localParam = searchParams.get("local");
+  const offlineId = localParam && localParam !== "1" ? localParam : null;
+  const hasLocalFlag = Boolean(localParam);
 
   const [result, setResult] = useState<KreplinResult | null>(null);
   const [history, setHistory] = useState<KreplinResult[]>([]);
@@ -33,20 +41,43 @@ export default function KreplinResultsPage() {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [offlineQueue, setOfflineQueue] = useState<OfflineKreplinResult[]>([]);
+  const [syncingOffline, setSyncingOffline] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
     async function fetchData() {
       try {
-        if (useLocal) {
-          const cached = typeof window !== "undefined"
-            ? sessionStorage.getItem("kreplinFallbackResult")
-            : null;
+        setError(null);
+        const offlineEntries =
+          typeof window !== "undefined" ? getOfflineKreplinQueue() : [];
+        if (!mounted) return;
+        setOfflineQueue(offlineEntries);
+
+        if (offlineId) {
+          const targeted = offlineEntries.find((item) => item.id === offlineId);
+          if (targeted) {
+            setResult(targeted as KreplinResult);
+            return;
+          }
+        }
+
+        if (hasLocalFlag && !resultId) {
+          const cached =
+            offlineEntries[0] ??
+            (typeof window !== "undefined"
+              ? JSON.parse(sessionStorage.getItem("kreplinFallbackResult") ?? "null")
+              : null);
           if (!cached) {
             setError("Tidak ada hasil lokal ditemukan.");
           } else {
-            setResult(JSON.parse(cached));
+            setResult(cached as KreplinResult);
           }
-        } else if (resultId) {
+          return;
+        }
+
+        if (resultId) {
           const response = await fetch(`/api/kreplin-results/${resultId}`);
           if (!response.ok) {
             throw new Error("Gagal memuat hasil.");
@@ -57,33 +88,94 @@ export default function KreplinResultsPage() {
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal memuat hasil.");
       } finally {
-        setLoading(false);
-      }
-    }
-    void fetchData();
-  }, [resultId, useLocal]);
-
-  useEffect(() => {
-    async function fetchHistory() {
-      try {
-        const response = await fetch("/api/kreplin-results");
-        if (!response.ok) {
-          throw new Error("Gagal memuat riwayat.");
+        if (mounted) {
+          setLoading(false);
         }
-        const json = await response.json();
-        setHistory(json.results ?? []);
-      } catch (err) {
-        console.error(err);
       }
     }
-    void fetchHistory();
+    setLoading(true);
+    void fetchData();
+    return () => {
+      mounted = false;
+    };
+  }, [resultId, hasLocalFlag, offlineId]);
+
+  const reloadHistory = useCallback(async () => {
+    try {
+      const response = await fetch("/api/kreplin-results");
+      if (!response.ok) {
+        throw new Error("Gagal memuat riwayat.");
+      }
+      const json = await response.json();
+      setHistory(json.results ?? []);
+    } catch (err) {
+      console.error(err);
+    }
   }, []);
 
   useEffect(() => {
-    if (!result && !useLocal && !resultId && history.length > 0) {
+    void reloadHistory();
+  }, [reloadHistory]);
+
+  useEffect(() => {
+    if (!result && !hasLocalFlag && !resultId && history.length > 0) {
       setResult(history[0]);
     }
-  }, [history, result, resultId, useLocal]);
+  }, [history, result, resultId, hasLocalFlag]);
+
+  const syncOfflineQueue = useCallback(async () => {
+    setActionError(null);
+    setSyncMessage(null);
+
+    const currentQueue = typeof window !== "undefined" ? getOfflineKreplinQueue() : [];
+    setOfflineQueue(currentQueue);
+    if (currentQueue.length === 0) {
+      return;
+    }
+
+    setSyncingOffline(true);
+    try {
+      const { synced, remaining } = await syncOfflineKreplinResults();
+      setOfflineQueue(remaining);
+
+      if (synced.length === 0) {
+        if (remaining.length > 0) {
+          setActionError("Belum bisa mengunggah hasil offline. Pastikan koneksi internet dan status login masih aktif.");
+        }
+        return;
+      }
+
+      await reloadHistory();
+      const currentOfflineId =
+        result && result.id.startsWith("offline-") ? result.id : null;
+      const matched = currentOfflineId
+        ? synced.find((item) => item.offlineId === currentOfflineId)
+        : null;
+      if (matched?.serverId) {
+        router.replace(`/kreplin/results?resultId=${matched.serverId}`);
+      }
+      setSyncMessage(`${synced.length} hasil offline berhasil diunggah.`);
+    } catch (err) {
+      setActionError("Gagal mengunggah hasil offline. Coba lagi setelah koneksi stabil.");
+    } finally {
+      setSyncingOffline(false);
+    }
+  }, [reloadHistory, result, router]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const handleOnline = () => {
+      void syncOfflineQueue();
+    };
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [syncOfflineQueue]);
+
+  useEffect(() => {
+    if (offlineQueue.length === 0) return;
+    if (typeof navigator !== "undefined" && !navigator.onLine) return;
+    void syncOfflineQueue();
+  }, [offlineQueue.length, syncOfflineQueue]);
 
   const sectionData: GraphDatum[] =
     result?.perSectionStats?.map((item) => ({
@@ -91,7 +183,7 @@ export default function KreplinResultsPage() {
       value: item.correct,
     })) ?? [];
 
-const speedData: GraphDatum[] =
+  const speedData: GraphDatum[] =
     result?.speedTimeline?.map((item) => ({
       label: `Menit ${item.index + 1}`,
       value: item.correct,
@@ -111,11 +203,33 @@ const speedData: GraphDatum[] =
       timeStyle: "short",
     }).format(new Date(value));
 
+  const isOfflineResult = Boolean(result?.id?.startsWith("offline-"));
+
   if (loading) {
     return <div className="flex h-screen items-center justify-center">Memuat...</div>;
   }
 
   const handleDelete = async (id: string) => {
+    if (offlineQueue.some((item) => item.id === id)) {
+      setDeletingId(id);
+      const updatedQueue = removeOfflineKreplinResult(id);
+      setOfflineQueue(updatedQueue);
+      if (result?.id === id) {
+        const nextResult = updatedQueue[0] ?? history[0] ?? null;
+        setResult(nextResult);
+        if (nextResult) {
+          const isOfflineResult = nextResult.id.startsWith("offline-");
+          router.replace(
+            isOfflineResult ? `/kreplin/results?local=${nextResult.id}` : `/kreplin/results?resultId=${nextResult.id}`
+          );
+        } else {
+          router.replace("/kreplin/results");
+        }
+      }
+      setDeletingId(null);
+      return;
+    }
+
     if (id === "local") {
       if (typeof window !== "undefined") {
         window.sessionStorage.removeItem("kreplinFallbackResult");
@@ -179,6 +293,74 @@ const speedData: GraphDatum[] =
 
   return (
     <div className="space-y-8">
+      {offlineQueue.length > 0 && (
+        <section className="rounded-3xl border border-amber-200 bg-amber-50 p-5 shadow">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-amber-700">Unggahan tertunda</p>
+              <p className="text-sm text-amber-800">
+                {offlineQueue.length} hasil Tes Kreplin disimpan di perangkat. Akan diunggah otomatis saat koneksi kembali.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => router.push(`/kreplin/results?local=${offlineQueue[0].id}`)}
+                className="rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100"
+              >
+                Lihat terbaru
+              </button>
+              <button
+                type="button"
+                onClick={() => syncOfflineQueue()}
+                className="rounded-full bg-amber-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:opacity-60"
+                disabled={syncingOffline}
+              >
+                {syncingOffline ? "Mengunggah..." : "Unggah sekarang"}
+              </button>
+            </div>
+          </div>
+          <div className="mt-3 space-y-2">
+            {offlineQueue.map((item) => (
+              <div
+                key={item.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/70 px-4 py-3"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-amber-900">{formatDate(item.createdAt)}</p>
+                  <p className="text-xs text-amber-700">
+                    Mode {item.mode} - {Math.round(item.durationSeconds / 60)} menit - {item.totalCorrect}/{item.totalAnswered} benar
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="rounded-full border border-amber-200 px-3 py-1 text-xs font-semibold text-amber-800 hover:bg-amber-100"
+                    onClick={() => router.push(`/kreplin/results?local=${item.id}`)}
+                  >
+                    Buka
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 disabled:opacity-60"
+                    onClick={() => handleDelete(item.id)}
+                    disabled={deletingId === item.id}
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {syncMessage && (
+        <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+          {syncMessage}
+        </p>
+      )}
+
       {result ? (
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -189,6 +371,11 @@ const speedData: GraphDatum[] =
                 {Math.round(result.durationSeconds / 60)} menit
               </h1>
               <p className="text-sm text-slate-500">{formatDate(result.createdAt)}</p>
+              {isOfflineResult && (
+                <p className="mt-2 inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                  Belum tersinkron - tersimpan lokal
+                </p>
+              )}
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -198,7 +385,26 @@ const speedData: GraphDatum[] =
               >
                 Mulai sesi baru
               </button>
-              {result.id !== "local" && (
+              {isOfflineResult ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => syncOfflineQueue()}
+                    className="rounded-full bg-amber-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-60"
+                    disabled={syncingOffline}
+                  >
+                    {syncingOffline ? "Mengunggah..." : "Unggah hasil"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(result.id)}
+                    className="rounded-full border border-rose-200 px-5 py-2 text-sm font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 disabled:opacity-60"
+                    disabled={deletingId === result.id}
+                  >
+                    {deletingId === result.id ? "Menghapus..." : "Hapus offline"}
+                  </button>
+                </>
+              ) : result.id !== "local" ? (
                 <button
                   type="button"
                   onClick={() => handleDelete(result.id)}
@@ -207,7 +413,7 @@ const speedData: GraphDatum[] =
                 >
                   {deletingId === result.id ? "Menghapus..." : "Hapus hasil ini"}
                 </button>
-              )}
+              ) : null}
             </div>
           </div>
 
