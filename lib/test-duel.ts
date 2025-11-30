@@ -25,7 +25,9 @@ export type TestDuel = Omit<TestDuelDocument, "_id"> & { id: string };
 const ROOM_CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function toDuel(dto: TestDuelDocument): TestDuel {
-  return dto.toJSON() as TestDuel;
+  const anyDto = dto as unknown as { toJSON?: () => unknown };
+  const json = typeof anyDto.toJSON === "function" ? anyDto.toJSON() : anyDto;
+  return json as TestDuel;
 }
 
 function generateRoomCode() {

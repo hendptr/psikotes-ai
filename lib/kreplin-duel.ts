@@ -32,7 +32,7 @@ async function generateRoomCode(attempts = 0): Promise<string> {
 }
 
 function toDuel(dto: KreplinDuelDocument): KreplinDuel {
-  return dto.toJSON() as KreplinDuel;
+  return (dto as unknown as { toJSON: () => KreplinDuel }).toJSON();
 }
 
 export async function createKreplinDuel(user: PublicUser, durationSeconds: number) {

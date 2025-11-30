@@ -163,21 +163,24 @@ export async function listSessionsForUser(userId: string): Promise<SessionListEn
     TestSessionModel.find({ userId })
       .sort({ startedAt: -1 })
       .limit(50)
-      .lean<
-        Array<{
-          _id: string;
-          userType: string;
-          category: string;
-          difficulty: string;
-          questionCount: number;
-          customDurationSeconds: number | null;
-          isPublic: boolean;
-          publicId: string | null;
-          startedAt: Date;
-          completedAt: Date | null;
-          score: number | null;
-          isDraft: boolean;
-          draftSavedAt: Date | null;
+    .lean<
+      Array<{
+        _id: string;
+        userType: string;
+        category: string;
+        difficulty: string;
+        questionCount: number;
+        customDurationSeconds: number | null;
+        isPublic: boolean;
+        publicId: string | null;
+        duelId?: string | null;
+        duelRole?: string | null;
+        duelRoomCode?: string | null;
+        startedAt: Date;
+        completedAt: Date | null;
+        score: number | null;
+        isDraft: boolean;
+        draftSavedAt: Date | null;
           draftQuestionIndex: number | null;
         }>
       >(),
