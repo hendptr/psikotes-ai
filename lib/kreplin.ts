@@ -62,6 +62,34 @@ export async function getKreplinResult(userId: string, resultId: string) {
   };
 }
 
+export async function saveKreplinAnalysis(
+  userId: string,
+  resultId: string,
+  analysis: { text: string; model: string }
+) {
+  await connectMongo();
+  const updated = await KreplinResultModel.findOneAndUpdate(
+    { _id: resultId, userId, "aiAnalysis.text": { $in: [null, undefined] } },
+    {
+      $set: {
+        aiAnalysis: {
+          text: analysis.text,
+          model: analysis.model,
+          createdAt: new Date(),
+        },
+      },
+    },
+    { new: true }
+  ).lean<(Omit<KreplinResultDocument, "id"> & { _id: string }) | null>();
+
+  if (!updated) return null;
+
+  return {
+    ...updated,
+    id: updated._id,
+  };
+}
+
 export async function deleteKreplinResult(userId: string, resultId: string) {
   await connectMongo();
   const deletion = await KreplinResultModel.deleteOne({

@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useRouter, useSearchParams } from "next/navigation";
 import ResultGraph, { type GraphDatum } from "@/components/kreplin/result-graph";
 import {
@@ -25,6 +27,28 @@ type KreplinResult = {
   accuracy: number;
   perSectionStats: SectionStat[];
   speedTimeline: SpeedBucket[];
+  aiAnalysis?: {
+    text: string | null;
+    model: string | null;
+    createdAt: string | null;
+  } | null;
+};
+
+type DuelParticipant = {
+  userId: string | null;
+  name: string | null;
+  email: string | null;
+  totalCorrect: number | null;
+  totalAnswered: number | null;
+  accuracy: number | null;
+};
+
+type KreplinDuel = {
+  id: string;
+  roomCode: string;
+  status: "waiting" | "ready" | "active" | "completed";
+  host: DuelParticipant;
+  guest: DuelParticipant | null;
 };
 
 export default function KreplinResultsPage() {
@@ -34,6 +58,7 @@ export default function KreplinResultsPage() {
   const localParam = searchParams.get("local");
   const offlineId = localParam && localParam !== "1" ? localParam : null;
   const hasLocalFlag = Boolean(localParam);
+  const duelId = searchParams.get("duel");
 
   const [result, setResult] = useState<KreplinResult | null>(null);
   const [history, setHistory] = useState<KreplinResult[]>([]);
@@ -44,12 +69,18 @@ export default function KreplinResultsPage() {
   const [offlineQueue, setOfflineQueue] = useState<OfflineKreplinResult[]>([]);
   const [syncingOffline, setSyncingOffline] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [duelInfo, setDuelInfo] = useState<KreplinDuel | null>(null);
+  const [duelError, setDuelError] = useState<string | null>(null);
+  const [duelLoading, setDuelLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
     async function fetchData() {
       try {
         setError(null);
+        setDuelError(null);
         const offlineEntries =
           typeof window !== "undefined" ? getOfflineKreplinQueue() : [];
         if (!mounted) return;
@@ -116,6 +147,44 @@ export default function KreplinResultsPage() {
   useEffect(() => {
     void reloadHistory();
   }, [reloadHistory]);
+
+  useEffect(() => {
+    if (!duelId) {
+      setDuelInfo(null);
+      return;
+    }
+    let cancelled = false;
+    const fetchDuel = async () => {
+      try {
+        setDuelLoading(true);
+        const response = await fetch(`/api/kreplin-duels/${duelId}`, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("Gagal memuat duel.");
+        }
+        const json = await response.json();
+        if (!cancelled) {
+          setDuelInfo(json.duel ?? null);
+          setDuelError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setDuelError(err instanceof Error ? err.message : "Gagal memuat duel.");
+          setDuelInfo(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setDuelLoading(false);
+        }
+      }
+    };
+
+    void fetchDuel();
+    const intervalId = window.setInterval(fetchDuel, 4000);
+    return () => {
+      cancelled = true;
+      clearInterval(intervalId);
+    };
+  }, [duelId]);
 
   useEffect(() => {
     if (!result && !hasLocalFlag && !resultId && history.length > 0) {
@@ -204,6 +273,20 @@ export default function KreplinResultsPage() {
     }).format(new Date(value));
 
   const isOfflineResult = Boolean(result?.id?.startsWith("offline-"));
+  const duelScores = duelInfo
+    ? {
+        host: duelInfo.host?.accuracy ?? null,
+        guest: duelInfo.guest?.accuracy ?? null,
+      }
+    : { host: null, guest: null };
+  const duelWinner =
+    duelInfo && duelScores.host != null && duelScores.guest != null
+      ? duelScores.host === duelScores.guest
+        ? "Seri"
+        : duelScores.host > duelScores.guest
+        ? duelInfo.host?.name ?? "Host"
+        : duelInfo.guest?.name ?? "Guest"
+      : null;
 
   if (loading) {
     return <div className="flex h-screen items-center justify-center">Memuat...</div>;
@@ -273,6 +356,33 @@ export default function KreplinResultsPage() {
       setActionError(err instanceof Error ? err.message : "Gagal menghapus hasil.");
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!result?.id || result.id.startsWith("offline-") || result.aiAnalysis?.text) return;
+    setAnalyzing(true);
+    setAnalysisError(null);
+    try {
+      const response = await fetch(`/api/kreplin-results/${result.id}/analyze`, {
+        method: "POST",
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Gagal membuat analisis.");
+      }
+      setResult((prev) =>
+        prev
+          ? {
+              ...prev,
+              aiAnalysis: payload.aiAnalysis ?? null,
+            }
+          : prev
+      );
+    } catch (err) {
+      setAnalysisError(err instanceof Error ? err.message : "Gagal membuat analisis.");
+    } finally {
+      setAnalyzing(false);
     }
   };
 
@@ -378,13 +488,13 @@ export default function KreplinResultsPage() {
               )}
             </div>
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => router.push("/kreplin")}
-                className="rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
-              >
-                Mulai sesi baru
-              </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/kreplin")}
+                  className="rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+                >
+                  Mulai sesi baru
+                </button>
               {isOfflineResult ? (
                 <>
                   <button
@@ -415,6 +525,118 @@ export default function KreplinResultsPage() {
                 </button>
               ) : null}
             </div>
+          </div>
+
+          {duelId && (
+            <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-emerald-700">Duel scoreboard</p>
+                  <p className="text-sm text-emerald-800">Kode: {duelInfo?.roomCode ?? duelId}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => duelId && router.replace(`/kreplin/results?${resultId ? `resultId=${resultId}&` : ""}duel=${duelId}`)}
+                  className="rounded-full border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100"
+                >
+                  Segarkan
+                </button>
+              </div>
+              {duelError && (
+                <p className="mt-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+                  {duelError}
+                </p>
+              )}
+              <div className="mt-3 grid gap-3 rounded-xl bg-white/80 p-3 text-sm text-slate-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-slate-900">{duelInfo?.host?.name ?? "Host"}</p>
+                    <p className="text-[11px] text-slate-500">{duelInfo?.host?.email ?? "-"}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Akurasi</p>
+                    <p className="text-xl font-semibold text-slate-900">
+                      {duelScores.host != null ? duelScores.host.toFixed(1) + "%" : duelLoading ? "..." : "-"}
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      {duelInfo?.host?.totalCorrect ?? "-"} / {duelInfo?.host?.totalAnswered ?? "-"} benar
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between border-t border-dashed border-slate-200 pt-3">
+                  <div>
+                    <p className="font-semibold text-slate-900">{duelInfo?.guest?.name ?? "Lawan"}</p>
+                    <p className="text-[11px] text-slate-500">{duelInfo?.guest?.email ?? "-"}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Akurasi</p>
+                    <p className="text-xl font-semibold text-slate-900">
+                      {duelScores.guest != null ? duelScores.guest.toFixed(1) + "%" : duelLoading ? "..." : "-"}
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      {duelInfo?.guest?.totalCorrect ?? "-"} / {duelInfo?.guest?.totalAnswered ?? "-"} benar
+                    </p>
+                  </div>
+                </div>
+              </div>
+              {duelWinner && (
+                <p className="mt-3 rounded-xl bg-emerald-100 px-3 py-2 text-center text-xs font-semibold text-emerald-800">
+                  {duelWinner === "Seri" ? "Seri" : `Pemenang: ${duelWinner}`}
+                </p>
+              )}
+              {isOfflineResult && duelId && (
+                <p className="mt-2 text-[11px] text-amber-700">
+                  Hasil duel akan diperbarui setelah unggahan offline berhasil.
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.3em] text-slate-500">Analisis AI</p>
+                <p className="text-sm text-slate-600">
+                  Ringkasan ketahanan & konsistensi ritme untuk seleksi karyawan.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAnalyze}
+                disabled={
+                  analyzing ||
+                  isOfflineResult ||
+                  Boolean(result.aiAnalysis?.text)
+                }
+                className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900 disabled:opacity-60"
+              >
+                {result.aiAnalysis?.text
+                  ? "Analisis tersedia"
+                  : analyzing
+                  ? "Menganalisis..."
+                  : "Analisis AI"}
+              </button>
+            </div>
+            {analysisError && (
+              <p className="mt-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-600">
+                {analysisError}
+              </p>
+            )}
+            {isOfflineResult && (
+              <p className="mt-2 text-[11px] text-amber-700">
+                Analisis butuh unggahan ke server. Simpan hasil dulu lalu coba lagi.
+              </p>
+            )}
+            {result.aiAnalysis?.text && (
+              <div className="mt-3 space-y-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
+                <p className="text-[11px] uppercase tracking-[0.25em] text-slate-500">
+                  Model: {result.aiAnalysis.model ?? "Gemini"} | {result.aiAnalysis.createdAt ? formatDate(result.aiAnalysis.createdAt) : ""}
+                </p>
+                <div className="prose prose-sm max-w-none text-slate-800">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{result.aiAnalysis.text}</ReactMarkdown>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-4">

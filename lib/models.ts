@@ -324,6 +324,11 @@ const kreplinResultSchema = new Schema(
       type: [kreplinSpeedBucketSchema],
       default: [],
     },
+    aiAnalysis: {
+      text: { type: String, default: null },
+      model: { type: String, default: null },
+      createdAt: { type: Date, default: null },
+    },
   },
   {
     collection: "kreplinResults",

@@ -25,9 +25,9 @@ type SessionPayload = {
   startedAt: string;
   completedAt: string | null;
   score: number | null;
-   duelId: string | null;
-   duelRole: string | null;
-   duelRoomCode: string | null;
+  duelId: string | null;
+  duelRole: string | null;
+  duelRoomCode: string | null;
   questions: PsychotestQuestion[];
   answers: SerializableAnswer[];
   isDraft: boolean;
@@ -41,6 +41,29 @@ type CompletionState =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "completed"; score: number; correct: number; answered: number };
+
+type DuelState = {
+  status: "idle" | "loading" | "ready";
+  duel: {
+    id: string;
+    roomCode: string;
+    status: "waiting" | "active" | "completed";
+    host: {
+      name: string | null;
+      email: string | null;
+      score: number | null;
+      correct: number | null;
+      answered: number | null;
+    };
+    guest: {
+      name: string | null;
+      email: string | null;
+      score: number | null;
+      correct: number | null;
+      answered: number | null;
+    } | null;
+  } | null;
+};
 
 type TestRunnerProps = {
   session: SessionPayload;
@@ -142,6 +165,7 @@ export default function TestRunner({ session }: TestRunnerProps) {
   const isComplete = completion.status === "completed";
   const showTimerCountdown = hasTimer && isSessionActive;
   const initialTimerAppliedRef = useRef(true);
+  const [duelState, setDuelState] = useState<DuelState>({ status: "idle", duel: null });
 
   function resetTimingForCurrentQuestion() {
     if (!isSessionActive) {
@@ -252,6 +276,46 @@ export default function TestRunner({ session }: TestRunnerProps) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
     }
   }, [completion.status, pendingSaves, session.sessionId]);
+
+  useEffect(() => {
+    if (!session.duelId) return;
+    let cancelled = false;
+    let intervalId: number | undefined;
+
+    const fetchDuel = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/test-duels/${session.duelId}`, {
+          cache: "no-store",
+        });
+        if (!response.ok) {
+          throw new Error("Gagal memuat duel.");
+        }
+        const payload = await response.json();
+        if (!cancelled) {
+          setDuelState({ status: "ready", duel: payload.duel });
+        }
+      } catch (error) {
+        console.error(error);
+        if (!cancelled) {
+          setDuelState((prev) => (prev.status === "idle" ? prev : { status: "loading", duel: null }));
+        }
+      }
+    };
+
+    setDuelState((prev) => ({ ...prev, status: "loading" }));
+    void fetchDuel();
+
+    if (completion.status === "completed") {
+      intervalId = window.setInterval(fetchDuel, 4000);
+    }
+
+    return () => {
+      cancelled = true;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [completion.status, session.duelId]);
 
   const saveDraft = useCallback(async () => {
     if (savingDraft || isComplete) {
@@ -437,6 +501,18 @@ export default function TestRunner({ session }: TestRunnerProps) {
   const isDuel = Boolean(session.duelId);
   const duelRoleLabel =
     session.duelRole === "host" ? "Host" : session.duelRole === "guest" ? "Guest" : "Peserta";
+
+  const duelSummary = useMemo(() => {
+    if (!duelState.duel) return null;
+    const hostScore = duelState.duel.host.score;
+    const guestScore = duelState.duel.guest?.score ?? null;
+    if (hostScore == null || guestScore == null) return null;
+    if (hostScore === guestScore) return "Seri";
+    const hostWins = hostScore > guestScore;
+    const winner =
+      hostWins ? duelState.duel.host.name ?? "Host" : duelState.duel.guest?.name ?? "Guest";
+    return `Menang: ${winner}`;
+  }, [duelState.duel]);
 
   return (
     <div className="space-y-4">
@@ -661,6 +737,52 @@ export default function TestRunner({ session }: TestRunnerProps) {
                 Jawaban benar {completion.correct} dari {completion.answered} soal. Ayo cek detailnya di
                 dashboard!
               </p>
+            </div>
+          )}
+          {isDuel && (
+            <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800 shadow">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs uppercase tracking-[0.3em] text-emerald-700">Duel scoreboard</p>
+                <span className="text-xs font-semibold text-emerald-700">
+                  Status: {duelState.duel?.status ?? "memuat"}
+                </span>
+              </div>
+              <div className="mt-3 grid gap-3 rounded-2xl bg-white/70 p-3 text-slate-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{duelState.duel?.host.name ?? "Host"}</p>
+                    <p className="text-[11px] text-slate-500">{duelState.duel?.host.email}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-slate-500">Skor</p>
+                    <p className="text-xl font-semibold text-slate-900">
+                      {duelState.duel?.host.score != null ? duelState.duel.host.score.toFixed(1) : "-"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between border-t border-dashed border-slate-200 pt-3">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">
+                      {duelState.duel?.guest?.name ?? "Lawan"}
+                    </p>
+                    <p className="text-[11px] text-slate-500">{duelState.duel?.guest?.email ?? "-"}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-slate-500">Skor</p>
+                    <p className="text-xl font-semibold text-slate-900">
+                      {duelState.duel?.guest?.score != null ? duelState.duel.guest.score.toFixed(1) : "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              {duelSummary && (
+                <p className="mt-3 rounded-xl bg-emerald-100 px-3 py-2 text-center text-xs font-semibold text-emerald-800">
+                  {duelSummary}
+                </p>
+              )}
+              {duelState.status === "loading" && (
+                <p className="mt-2 text-xs text-emerald-700">Memuat skor duel...</p>
+              )}
             </div>
           )}
         </aside>

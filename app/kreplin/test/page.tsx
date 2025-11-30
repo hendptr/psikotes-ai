@@ -242,7 +242,9 @@ function TesKoran() {
         sessionStorage.setItem("kreplinFallbackResult", JSON.stringify(offlineResult));
       }
       setPendingOfflineCount(getOfflineKreplinQueue().length);
-      router.push(`/kreplin/results?local=${offlineResult.id}`);
+      router.push(
+        `/kreplin/results?local=${offlineResult.id}${duelId ? `&duel=${duelId}` : ""}`
+      );
     };
 
     try {
