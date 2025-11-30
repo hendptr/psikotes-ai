@@ -27,6 +27,7 @@ export type PublicUser = {
   email: string;
   name: string | null;
   createdAt: Date;
+  lastSeenAt: Date | null;
 };
 
 export async function hashPassword(password: string): Promise<string> {
@@ -53,13 +54,19 @@ export function verifyJwt(token: string): AuthTokenPayload | null {
   }
 }
 
-async function fetchUserById(userId: string): Promise<PublicUser | null> {
+async function fetchUserById(userId: string, touchLastSeen = false): Promise<PublicUser | null> {
   await connectMongo();
-  const user = await UserModel.findById(userId).lean<{
+  const now = new Date();
+  const user = await UserModel.findByIdAndUpdate(
+    userId,
+    touchLastSeen ? { $set: { lastSeenAt: now } } : {},
+    { new: true }
+  ).lean<{
     _id: string;
     email: string;
     name: string | null;
     createdAt: Date;
+    lastSeenAt: Date | null;
   }>();
 
   if (!user) {
@@ -71,6 +78,7 @@ async function fetchUserById(userId: string): Promise<PublicUser | null> {
     email: user.email,
     name: user.name ?? null,
     createdAt: user.createdAt,
+    lastSeenAt: user.lastSeenAt ?? null,
   };
 }
 
@@ -83,7 +91,7 @@ export async function getCurrentUser(req: NextRequest): Promise<PublicUser | nul
   if (!payload?.userId) {
     return null;
   }
-  return fetchUserById(payload.userId);
+  return fetchUserById(payload.userId, true);
 }
 
 type CookieStore = Awaited<ReturnType<typeof cookies>>;
@@ -100,7 +108,7 @@ export async function getCurrentUserFromCookies(
   if (!payload?.userId) {
     return null;
   }
-  return fetchUserById(payload.userId);
+  return fetchUserById(payload.userId, true);
 }
 
 export async function setAuthCookie(token: string) {

@@ -44,6 +44,10 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    lastSeenAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     collection: "users",
